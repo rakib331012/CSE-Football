@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intra CSE Football Tournament</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">SUST CSE</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="players.html">Players</a></li>
+                    <li class="nav-item"><a class="nav-link" href="teams.html">Teams</a></li>
+                    <li class="nav-item"><a class="nav-link" href="auction.html">Auction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="schedule.html">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section text-center text-white d-flex align-items-center">
+        <div class="container animate__animated animate__fadeIn">
+            <h1 class="display-3 fw-bold">Intra CSE Football Tournament 2025</h1>
+            <p class="lead">SUST CSE - Where Legends Are Made</p>
+            <a href="teams.html" class="btn btn-primary btn-lg m-2 animate__animated animate__bounceIn">Explore Teams</a>
+            <a href="auction.html" class="btn btn-success btn-lg m-2 animate__animated animate__bounceIn">Auction Details</a>
+        </div>
+    </header>
+
+    <!-- Countdown Timer -->
+    <section class="container my-5 text-center">
+        <h2 class="animate__animated animate__fadeInUp">Countdown to Kickoff</h2>
+        <div id="countdown" class="d-flex justify-content-center gap-4 mt-4">
+            <div class="countdown-item"><span id="days">00</span><br>Days</div>
+            <div class="countdown-item"><span id="hours">00</span><br>Hours</div>
+            <div class="countdown-item"><span id="minutes">00</span><br>Minutes</div>
+            <div class="countdown-item"><span id="seconds">00</span><br>Seconds</div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section text-white text-center py-5">
+        <div class="container">
+            <h2 class="animate__animated animate__fadeInUp">Tournament Highlights</h2>
+            <div class="row mt-4">
+                <div class="col-md-4 animate__animated animate__zoomIn">
+                    <h3>6</h3>
+                    <p>Teams Competing</p>
+                </div>
+                <div class="col-md-4 animate__animated animate__zoomIn" style="animation-delay: 0.2s;">
+                    <h3>36+</h3>
+                    <p>Players Registered</p>
+                </div>
+                <div class="col-md-4 animate__animated animate__zoomIn" style="animation-delay: 0.4s;">
+                    <h3>June 2025</h3>
+                    <p>Epic Showdown</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-5">
+        <div class="container">
+            <p>&copy; Mehedi Hassan Rakib| 
+                <a href="https://www.facebook.com/rakibmh100/" target="_blank"> Facebook </a> | 
+                
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Countdown Timer
+        const startDate = new Date('June 22, 2025 14:00:00').getTime(); // Tournament start
+        const endDate = new Date('June 27, 2025 23:59:59').getTime();  // Tournament end
+        const countdown = setInterval(() => {
+            const now = new Date().getTime();
+            const distanceToStart = startDate - now;
+            const distanceToEnd = endDate - now;
+
+            if (distanceToStart > 0) {
+                // Before tournament starts
+                const days = Math.floor(distanceToStart / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distanceToStart % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distanceToStart % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distanceToStart % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            } else if (distanceToStart <= 0 && distanceToEnd > 0) {
+                // During tournament
+                clearInterval(countdown);
+                document.getElementById('countdown').innerHTML = '<h3>Tournament In Progress!</h3>';
+            } else {
+                // After tournament ends
+                clearInterval(countdown);
+                document.getElementById('countdown').innerHTML = '<h3>Tournament Ended!</h3>';
+            }
+        }, 1000);
+
+        // Featured Teams
+        document.addEventListener('DOMContentLoaded', () => {
+            const featuredTeams = teams.slice(0, 3); // Show first 3 teams
+            const featuredTeamsContainer = document.getElementById('featured-teams');
+            featuredTeams.forEach((team, index) => {
+                const teamPlayers = players.filter(p => team.playerIds.includes(p.id));
+                const playerCount = teamPlayers.length;
+                featuredTeamsContainer.innerHTML += `
+                    <div class="col-md-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: ${index * 0.2}s;">
+                        <div class="card">
+                            <img src="${team.logo}" class="card-img-top" alt="${team.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${team.name}</h5>
+                                <p class="card-text">
+                                    Manager: ${team.manager}<br>
+                                    Players: ${playerCount}
+                                </p>
+                                <a href="teams.html" class="btn btn-outline-primary btn-sm">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        });
+    </script>
+</body>
+</html>

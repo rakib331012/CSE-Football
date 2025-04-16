@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Football Tournament</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-section { margin-bottom: 40px; }
+        .form-group { margin-bottom: 15px; }
+        .player-select { max-height: 200px; overflow-y: auto; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">Football Tournament</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="players.html">Players</a></li>
+                    <li class="nav-item"><a class="nav-link" href="teams.html">Teams</a></li>
+                    <li class="nav-item"><a class="nav-link" href="auction.html">Auction</a></li>
+                    <li class="nav-item"><a class="nav-link" href="schedule.html">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="admin.html">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h1 class="text-center">Admin Panel</h1>
+        <div id="error" class="error text-center"></div>
+
+        <!-- Players Section -->
+        <div class="admin-section">
+            <h2>Manage Players</h2>
+            <form id="player-form">
+                <div class="form-group">
+                    <label for="player-name">Name</label>
+                    <input type="text" id="player-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="player-regNum">Registration Number</label>
+                    <input type="text" id="player-regNum" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="player-position">Position</label>
+                    <select id="player-position" class="form-control" required>
+                        <option value="Forward">Forward</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="player-image">Image URL</label>
+                    <input type="url" id="player-image" class="form-control" placeholder="https://...">
+                </div>
+                <input type="hidden" id="player-id">
+                <button type="submit" id="player-submit" class="btn btn-primary">Add Player</button>
+            </form>
+            <div class="row mt-4" id="admin-players-list"></div>
+        </div>
+
+        <!-- Teams Section -->
+        <div class="admin-section">
+            <h2>Manage Teams</h2>
+            <form id="team-form">
+                <div class="form-group">
+                    <label for="team-name">Team Name</label>
+                    <input type="text" id="team-name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="team-manager">Manager</label>
+                    <input type="text" id="team-manager" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="team-owner">Owner</label>
+                    <input type="text" id="team-owner" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="team-logo">Logo URL</label>
+                    <input type="url" id="team-logo" class="form-control" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label for="team-players">Players</label>
+                    <select id="team-players" class="form-control player-select" multiple></select>
+                </div>
+                <input type="hidden" id="team-id">
+                <button type="submit" id="team-submit" class="btn btn-primary">Add Team</button>
+            </form>
+            <div class="row mt-4" id="admin-teams-list"></div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="admin-section">
+            <h2>Manage Schedule</h2>
+            <form id="schedule-form">
+                <div class="form-group">
+                    <label for="schedule-team1">Team 1</label>
+                    <select id="schedule-team1" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="schedule-team2">Team 2</label>
+                    <select id="schedule-team2" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="schedule-date">Date</label>
+                    <input type="date" id="schedule-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="schedule-time">Time</label>
+                    <input type="time" id="schedule-time" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="schedule-location">Location</label>
+                    <input type="text" id="schedule-location" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="schedule-status">Status</label>
+                    <select id="schedule-status" class="form-control" required>
+                        <option value="Upcoming">Upcoming</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Postponed">Postponed</option>
+                    </select>
+                </div>
+                <input type="hidden" id="schedule-id">
+                <button type="submit" id="schedule-submit" class="btn btn-primary">Add Match</button>
+            </form>
+            <div class="row mt-4" id="admin-schedule-list"></div>
+        </div>
+    </div>
+
+    <footer class="mt-5">
+        <div class="container">
+            <p>&copy; Mehedi Hassan Rakib| 
+                <a href="https://www.facebook.com/rakibmh100/" target="_blank"> Facebook </a> | 
+                
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Admin password (change this!)
+        const ADMIN_PASSWORD = "rakib12";
+    
+        // Check password
+        const enteredPassword = prompt("Enter admin password:");
+        if (enteredPassword !== ADMIN_PASSWORD) {
+            alert("Incorrect password!");
+            window.location.href = "index.html";
+        }
+    
+        // DOM Elements
+        const playerForm = document.getElementById('player-form');
+        const teamForm = document.getElementById('team-form');
+        const scheduleForm = document.getElementById('schedule-form');
+        const playerSubmit = document.getElementById('player-submit');
+        const teamSubmit = document.getElementById('team-submit');
+        const scheduleSubmit = document.getElementById('schedule-submit');
+        const errorDiv = document.getElementById('error');
+    
+        // Render admin lists
+        function renderAdminPlayers() {
+            const container = document.getElementById('admin-players-list');
+            container.innerHTML = '';
+            players.forEach(player => {
+                container.innerHTML += `
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="${player.image}" class="card-img-top" alt="${player.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${player.name}</h5>
+                                <p class="player-position">${player.position}</p>
+                                <p class="card-text">Reg: ${player.regNum}</p>
+                                <button class="btn btn-warning btn-sm edit-player" data-id="${player.id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-player" data-id="${player.id}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    
+            // Attach event listeners directly
+            document.querySelectorAll('.edit-player').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Edit player clicked: ${btn.dataset.id}`);
+                    editPlayer(btn.dataset.id);
+                });
+            });
+            document.querySelectorAll('.delete-player').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Delete player clicked: ${btn.dataset.id}`);
+                    deletePlayer(parseInt(btn.dataset.id));
+                });
+            });
+        }
+    
+        function renderAdminTeams() {
+            const container = document.getElementById('admin-teams-list');
+            container.innerHTML = '';
+            teams.forEach(team => {
+                const teamPlayers = players.filter(p => team.playerIds.includes(p.id));
+                const playerNames = teamPlayers.map(p => `${p.name} (${p.position})`).join(', ');
+                container.innerHTML += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <img src="${team.logo}" class="card-img-top" alt="${team.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${team.name}</h5>
+                                <p class="card-text">
+                                    Manager: ${team.manager}<br>
+                                    Owner: ${team.owner}<br>
+                                    Players: ${playerNames || 'None'}
+                                </p>
+                                <button class="btn btn-warning btn-sm edit-team" data-id="${team.id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-team" data-id="${team.id}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    
+            // Attach event listeners directly with debug logs
+            const editButtons = document.querySelectorAll('.edit-team');
+            const deleteButtons = document.querySelectorAll('.delete-team');
+            console.log(`Found ${editButtons.length} edit buttons and ${deleteButtons.length} delete buttons`);
+    
+            editButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Edit team clicked: ${btn.dataset.id}`);
+                    editTeam(btn.dataset.id);
+                });
+            });
+    
+            deleteButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Delete team clicked: ${btn.dataset.id}`);
+                    deleteTeam(parseInt(btn.dataset.id));
+                });
+            });
+        }
+    
+        function renderAdminSchedule() {
+            const container = document.getElementById('admin-schedule-list');
+            container.innerHTML = '';
+            schedule.forEach(match => {
+                container.innerHTML += `
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${match.teams[0]} vs ${match.teams[1]}</h5>
+                                <p class="card-text">
+                                    Date: ${match.date}<br>
+                                    Time: ${match.time}<br>
+                                    Location: ${match.location}<br>
+                                    Status: ${match.status}
+                                </p>
+                                <button class="btn btn-warning btn-sm edit-schedule" data-id="${match.id}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-schedule" data-id="${match.id}">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+    
+            // Attach event listeners directly
+            document.querySelectorAll('.edit-schedule').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Edit schedule clicked: ${btn.dataset.id}`);
+                    editSchedule(btn.dataset.id);
+                });
+            });
+            document.querySelectorAll('.delete-schedule').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    console.log(`Delete schedule clicked: ${btn.dataset.id}`);
+                    deleteSchedule(parseInt(btn.dataset.id));
+                });
+            });
+        }
+    
+        // Populate team selects
+        function populateTeamSelects() {
+            const team1Select = document.getElementById('schedule-team1');
+            const team2Select = document.getElementById('schedule-team2');
+            team1Select.innerHTML = '<option value="">Select Team</option>';
+            team2Select.innerHTML = '<option value="">Select Team</option>';
+            teams.forEach(team => {
+                team1Select.innerHTML += `<option value="${team.name}">${team.name}</option>`;
+                team2Select.innerHTML += `<option value="${team.name}">${team.name}</option>`;
+            });
+        }
+    
+        // Populate player select
+        function populatePlayerSelect(selectedIds = []) {
+            const playerSelect = document.getElementById('team-players');
+            playerSelect.innerHTML = '';
+            players.forEach(player => {
+                const isSelected = selectedIds.includes(player.id) ? 'selected' : '';
+                playerSelect.innerHTML += `<option value="${player.id}" ${isSelected}>${player.name} (${player.position})</option>`;
+            });
+        }
+    
+        // Player form handling
+        playerForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('player-id').value);
+            const player = {
+                name: document.getElementById('player-name').value,
+                regNum: document.getElementById('player-regNum').value,
+                position: document.getElementById('player-position').value,
+                image: document.getElementById('player-image').value || 'https://via.placeholder.com/200'
+            };
+    
+            try {
+                if (id) {
+                    updatePlayer(id, player);
+                    playerSubmit.textContent = 'Add Player';
+                    document.getElementById('player-id').value = '';
+                } else {
+                    addPlayer(player);
+                }
+                playerForm.reset();
+                renderAdminPlayers();
+                populatePlayerSelect();
+            } catch (err) {
+                errorDiv.textContent = 'Error saving player: ' + err.message;
+            }
+        });
+    
+        function editPlayer(id) {
+            const player = players.find(p => p.id === parseInt(id));
+            if (player) {
+                document.getElementById('player-name').value = player.name;
+                document.getElementById('player-regNum').value = player.regNum;
+                document.getElementById('player-position').value = player.position;
+                document.getElementById('player-image').value = player.image;
+                document.getElementById('player-id').value = player.id;
+                playerSubmit.textContent = 'Update Player';
+            } else {
+                console.error(`Player with ID ${id} not found`);
+            }
+        }
+    
+        function deletePlayer(id) {
+            try {
+                removePlayer(id);
+                renderAdminPlayers();
+                populatePlayerSelect();
+            } catch (err) {
+                errorDiv.textContent = 'Error deleting player: ' + err.message;
+            }
+        }
+    
+        // Team form handling
+        teamForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = document.getElementById('team-id').value ? parseInt(document.getElementById('team-id').value) : null;
+            const playerSelect = document.getElementById('team-players');
+            const selectedPlayerIds = Array.from(playerSelect.selectedOptions).map(opt => parseInt(opt.value));
+            const team = {
+                name: document.getElementById('team-name').value,
+                manager: document.getElementById('team-manager').value,
+                owner: document.getElementById('team-owner').value,
+                logo: document.getElementById('team-logo').value || 'https://via.placeholder.com/60',
+                playerIds: selectedPlayerIds
+            };
+    
+            try {
+                if (id) {
+                    updateTeam(id, team);
+                    teamSubmit.textContent = 'Add Team';
+                    document.getElementById('team-id').value = '';
+                } else {
+                    addTeam(team);
+                }
+                teamForm.reset();
+                renderAdminTeams();
+                populateTeamSelects();
+                populatePlayerSelect();
+            } catch (err) {
+                errorDiv.textContent = 'Error saving team: ' + err.message;
+            }
+        });
+    
+        function editTeam(id) {
+            const team = teams.find(t => t.id === parseInt(id));
+            if (team) {
+                document.getElementById('team-name').value = team.name;
+                document.getElementById('team-manager').value = team.manager;
+                document.getElementById('team-owner').value = team.owner;
+                document.getElementById('team-logo').value = team.logo;
+                document.getElementById('team-id').value = team.id;
+                populatePlayerSelect(team.playerIds);
+                teamSubmit.textContent = 'Update Team';
+            } else {
+                console.error(`Team with ID ${id} not found`);
+            }
+        }
+    
+        function deleteTeam(id) {
+            try {
+                removeTeam(id);
+                renderAdminTeams();
+                populateTeamSelects();
+            } catch (err) {
+                errorDiv.textContent = 'Error deleting team: ' + err.message;
+            }
+        }
+    
+        // Schedule form handling
+        scheduleForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const id = document.getElementById('schedule-id').value ? parseInt(document.getElementById('schedule-id').value) : null;
+            const match = {
+                teams: [
+                    document.getElementById('schedule-team1').value,
+                    document.getElementById('schedule-team2').value
+                ],
+                date: document.getElementById('schedule-date').value,
+                time: document.getElementById('schedule-time').value,
+                location: document.getElementById('schedule-location').value,
+                status: document.getElementById('schedule-status').value
+            };
+    
+            try {
+                if (match.teams[0] === match.teams[1]) {
+                    throw new Error("Teams cannot be the same!");
+                }
+                if (id) {
+                    updateSchedule(id, match);
+                    scheduleSubmit.textContent = 'Add Match';
+                    document.getElementById('schedule-id').value = '';
+                } else {
+                    addSchedule(match);
+                }
+                scheduleForm.reset();
+                renderAdminSchedule();
+            } catch (err) {
+                errorDiv.textContent = 'Error saving match: ' + err.message;
+            }
+        });
+    
+        function editSchedule(id) {
+            const match = schedule.find(s => s.id === parseInt(id));
+            if (match) {
+                document.getElementById('schedule-team1').value = match.teams[0];
+                document.getElementById('schedule-team2').value = match.teams[1];
+                document.getElementById('schedule-date').value = match.date;
+                document.getElementById('schedule-time').value = match.time;
+                document.getElementById('schedule-location').value = match.location;
+                document.getElementById('schedule-status').value = match.status;
+                document.getElementById('schedule-id').value = match.id;
+                scheduleSubmit.textContent = 'Update Match';
+            } else {
+                console.error(`Schedule with ID ${id} not found`);
+            }
+        }
+    
+        function deleteSchedule(id) {
+            try {
+                removeSchedule(id);
+                renderAdminSchedule();
+            } catch (err) {
+                errorDiv.textContent = 'Error deleting schedule: ' + err.message;
+            }
+        }
+    
+        // Initialize
+        try {
+            renderAdminPlayers();
+            renderAdminTeams();
+            renderAdminSchedule();
+            populatePlayerSelect();
+            populateTeamSelects();
+        } catch (err) {
+            errorDiv.textContent = 'Error loading admin panel: ' + err.message;
+        }
+    </script>
+</body>
+</html>
