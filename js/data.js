@@ -19,6 +19,31 @@ async function getNextId(collectionName) {
     return ids.length > 0 ? Math.max(...ids) + 1 : 1;
 }
 
+// Helper to update all players' team info
+async function syncPlayerTeams() {
+    const teamsSnapshot = await db.collection('teams').get();
+    const teams = teamsSnapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
+
+    // First, reset all players' team to null
+    const playersSnapshot = await db.collection('players').get();
+    const batch = db.batch();
+    playersSnapshot.forEach(playerDoc => {
+        batch.update(playerDoc.ref, { team: null });
+    });
+    await batch.commit();
+
+    // Then, assign teams to players based on team playerRegNums
+    for (const team of teams) {
+        const playerRegNums = team.playerRegNums || [];
+        const teamBatch = db.batch();
+        for (const regNum of playerRegNums) {
+            const playerRef = db.collection('players').doc(regNum);
+            teamBatch.update(playerRef, { team: team.name });
+        }
+        await teamBatch.commit();
+    }
+}
+
 // Players
 async function getPlayers() {
     const snapshot = await db.collection('players').get();
@@ -29,7 +54,7 @@ async function addPlayer(player) {
     if (!player.regNum) throw new Error("Registration number is required");
     const existingPlayer = await db.collection('players').doc(player.regNum).get();
     if (existingPlayer.exists) throw new Error(`Player with regNum ${player.regNum} already exists`);
-    const newPlayer = { ...player, regNum: player.regNum };
+    const newPlayer = { ...player, regNum: player.regNum, team: null }; // Initialize team as null
     await db.collection('players').doc(player.regNum).set(newPlayer);
     return newPlayer;
 }
@@ -41,6 +66,8 @@ async function updatePlayer(regNum, player) {
 
 async function removePlayer(regNum) {
     await db.collection('players').doc(regNum).delete();
+    // After removing a player, sync team info to ensure consistency
+    await syncPlayerTeams();
     return { message: 'Player deleted' };
 }
 
@@ -54,16 +81,26 @@ async function addTeam(team) {
     const newId = await getNextId('teams');
     const newTeam = { ...team, id: newId };
     await db.collection('teams').doc(newId.toString()).set(newTeam);
+    // Sync player team info after adding the team
+    await syncPlayerTeams();
     return newTeam;
 }
 
 async function updateTeam(id, team) {
+    const existingTeam = await db.collection('teams').doc(id.toString()).get();
+    if (!existingTeam.exists) throw new Error(`Team with ID ${id} does not exist`);
     await db.collection('teams').doc(id.toString()).set({ ...team, id: parseInt(id) }, { merge: true });
+    // Sync player team info after updating the team
+    await syncPlayerTeams();
     return { id: parseInt(id), ...team };
 }
 
 async function removeTeam(id) {
+    const existingTeam = await db.collection('teams').doc(id.toString()).get();
+    if (!existingTeam.exists) throw new Error(`Team with ID ${id} does not exist`);
     await db.collection('teams').doc(id.toString()).delete();
+    // Sync player team info after removing the team
+    await syncPlayerTeams();
     return { message: 'Team deleted' };
 }
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule - University Football Tournament</title>
+    <title>Match Results - University Football Tournament</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Animate.css -->
@@ -40,10 +40,10 @@
         </div>
     </nav>
 
-    <!-- Schedule Section -->
+    <!-- Results Section -->
     <div class="container my-5">
-        <h2 class="text-center">Tournament Schedule</h2>
-        <div id="schedule-list" class="row"></div>
+        <h2 class="text-center">Match Results</h2>
+        <div id="results-list" class="row"></div>
     </div>
 
     <!-- Bootstrap JS and Popper.js -->
@@ -51,22 +51,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
         // DOM Elements
-        const scheduleList = document.getElementById('schedule-list');
+        const resultsList = document.getElementById('results-list');
 
-        // Render schedule
-        function renderSchedule(schedule) {
-            scheduleList.innerHTML = '';
-            schedule.forEach(match => {
-                scheduleList.innerHTML += `
+        // Render results
+        function renderResults(schedule) {
+            const completedMatches = schedule.filter(match => match.status === 'Completed' && match.score);
+            resultsList.innerHTML = '';
+            completedMatches.forEach(match => {
+                const scoreDisplay = `${match.teams[0]} ${match.score[match.teams[0]]} - ${match.score[match.teams[1]]} ${match.teams[1]}`;
+                resultsList.innerHTML += `
                     <div class="col-md-6 mb-4">
                         <div class="card animate__animated animate__fadeIn">
                             <div class="card-body">
                                 <h5 class="card-title">${match.teams[0]} vs ${match.teams[1]}</h5>
                                 <p class="card-text">
+                                    Result: ${scoreDisplay}<br>
                                     Date: ${match.date}<br>
-                                    Time: ${match.time}<br>
-                                    Location: ${match.location}<br>
-                                    Status: ${match.status}
+                                    Location: ${match.location}
                                 </p>
                             </div>
                         </div>
@@ -78,7 +79,7 @@
         // Real-time listener for schedule
         db.collection('schedule').onSnapshot(snapshot => {
             const schedule = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
-            renderSchedule(schedule.sort((a, b) => a.id - b.id));
+            renderResults(schedule.sort((a, b) => new Date(b.date) - new Date(a.date))); // Sort by date, most recent first
         }, err => {
             console.error('Error listening to schedule:', err);
         });

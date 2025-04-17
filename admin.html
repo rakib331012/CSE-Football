@@ -32,6 +32,8 @@
                     <li class="nav-item"><a class="nav-link" href="teams.html">Teams</a></li>
                     <li class="nav-item"><a class="nav-link" href="auction.html">Auction</a></li>
                     <li class="nav-item"><a class="nav-link" href="schedule.html">Schedule</a></li>
+                    <li class="nav-item"><a class="nav-link" href="points-table.html">Points Table</a></li>
+                    <li class="nav-item"><a class="nav-link" href="results.html">Results</a></li>
                 </ul>
             </div>
         </div>
@@ -117,6 +119,13 @@
                     <input type="url" id="team-logo" class="form-control">
                 </div>
                 <div class="form-group">
+                    <label for="team-group">Group:</label>
+                    <select id="team-group" class="form-control" required>
+                        <option value="A">Group A</option>
+                        <option value="B">Group B</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="team-players">Players:</label>
                     <select id="team-players" class="form-control player-select" multiple></select>
                 </div>
@@ -160,6 +169,16 @@
                         <option value="Completed">Completed</option>
                         <option value="Cancelled">Cancelled</option>
                     </select>
+                </div>
+                <div id="score-fields" style="display: none;">
+                    <div class="form-group">
+                        <label for="schedule-team1-score">Team 1 Score:</label>
+                        <input type="number" id="schedule-team1-score" class="form-control" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="schedule-team2-score">Team 2 Score:</label>
+                        <input type="number" id="schedule-team2-score" class="form-control" min="0">
+                    </div>
                 </div>
                 <button type="submit" id="schedule-submit" class="btn btn-primary">Add Match</button>
             </form>
@@ -333,6 +352,7 @@
             const container = document.getElementById('admin-schedule-list');
             container.innerHTML = '';
             schedule.forEach(match => {
+                const scoreDisplay = match.score ? `${match.teams[0]} ${match.score[match.teams[0]]} - ${match.score[match.teams[1]]} ${match.teams[1]}` : 'Not yet played';
                 container.innerHTML += `
                     <div class="col-md-6 mb-4">
                         <div class="card">
@@ -342,7 +362,8 @@
                                     Date: ${match.date}<br>
                                     Time: ${match.time}<br>
                                     Location: ${match.location}<br>
-                                    Status: ${match.status}
+                                    Status: ${match.status}<br>
+                                    Score: ${scoreDisplay}
                                 </p>
                                 <button class="btn btn-warning btn-sm edit-schedule" data-id="${match.id}" aria-label="Edit schedule for ${match.teams[0]} vs ${match.teams[1]}">Edit</button>
                                 <button class="btn btn-danger btn-sm delete-schedule" data-id="${match.id}" aria-label="Delete schedule for ${match.teams[0]} vs ${match.teams[1]}">Delete</button>
@@ -461,7 +482,8 @@
                 manager: document.getElementById('team-manager').value,
                 owner: document.getElementById('team-owner').value,
                 logo: document.getElementById('team-logo').value || 'https://via.placeholder.com/60',
-                playerRegNums: selectedPlayerRegNums
+                playerRegNums: selectedPlayerRegNums,
+                group: document.getElementById('team-group').value // Add group field
             };
     
             try {
@@ -491,6 +513,7 @@
                     document.getElementById('team-owner').value = team.owner;
                     document.getElementById('team-logo').value = team.logo;
                     document.getElementById('team-id').value = team.id;
+                    document.getElementById('team-group').value = team.group || 'A'; // Default to Group A if not set
                     populatePlayerSelect(team.playerRegNums || []);
                     teamSubmit.textContent = 'Update Team';
                 } else {
@@ -525,6 +548,16 @@
                 status: document.getElementById('schedule-status').value
             };
     
+            // Add score if the match is completed
+            if (match.status === 'Completed') {
+                const team1Score = parseInt(document.getElementById('schedule-team1-score').value) || 0;
+                const team2Score = parseInt(document.getElementById('schedule-team2-score').value) || 0;
+                match.score = {
+                    [match.teams[0]]: team1Score,
+                    [match.teams[1]]: team2Score
+                };
+            }
+    
             try {
                 if (match.teams[0] === match.teams[1]) {
                     throw new Error("Teams cannot be the same!");
@@ -553,13 +586,32 @@
                     document.getElementById('schedule-time').value = match.time;
                     document.getElementById('schedule-location').value = match.location;
                     document.getElementById('schedule-status').value = match.status;
+                    document.getElementById('schedule-team1-score').value = match.score ? match.score[match.teams[0]] : '';
+                    document.getElementById('schedule-team2-score').value = match.score ? match.score[match.teams[1]] : '';
                     document.getElementById('schedule-id').value = match.id;
                     scheduleSubmit.textContent = 'Update Match';
+                    toggleScoreFields(match.status === 'Completed');
                 } else {
                     console.error(`Schedule with ID ${id} not found`);
                 }
             });
         }
+    
+        function toggleScoreFields(isCompleted) {
+            const scoreFields = document.getElementById('score-fields');
+            if (isCompleted) {
+                scoreFields.style.display = 'block';
+            } else {
+                scoreFields.style.display = 'none';
+                document.getElementById('schedule-team1-score').value = '';
+                document.getElementById('schedule-team2-score').value = '';
+            }
+        }
+    
+        // Update score fields visibility when status changes
+        document.getElementById('schedule-status').addEventListener('change', (e) => {
+            toggleScoreFields(e.target.value === 'Completed');
+        });
     
         async function deleteSchedule(id) {
             try {
