@@ -231,13 +231,13 @@ footer {
 }
 
 footer a {
-    color: #10b981;
+    color: #77c5ab;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 footer a:hover {
-    color: #34d399;
+    color: #72d0ad;
 }
 
 /* Dark Mode */
@@ -348,6 +348,30 @@ body.dark-mode footer {
 
 .player-select option {
     padding: 5px;
+}
+
+/* Admin Login Icon */
+.admin-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #10b981; /* Green accent border */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Center the image on smaller screens */
+@media (max-width: 768px) {
+    .admin-icon {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Dark Mode Adjustments */
+body.dark-mode .admin-icon {
+    border-color: #34d399; /* Lighter green in dark mode */
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
 }
 
 /* Modal Styles */
