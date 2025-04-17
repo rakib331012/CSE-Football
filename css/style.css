@@ -1,10 +1,13 @@
+/* Import modern fonts (already included Poppins) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
 /* Global styles */
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #eae9e2fd;
-    color: #0c0c0c;
+    background: linear-gradient(180deg, #f8fafc 0%, #e5e7eb 100%);
+    color: #111827;
     overflow-x: hidden;
 }
 
@@ -14,20 +17,52 @@ body {
     padding: 20px;
 }
 
+/* Preloader */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+#preloader .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #10b981;
+    border-top: 5px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Navbar */
 .navbar {
-    background-color: #3170ee;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .navbar-brand, .nav-link {
-    color: white !important;
-    font-weight: bold;
+    color: #ffffff !important;
+    font-weight: 600;
+    transition: color 0.3s ease;
 }
 
-.nav-link:hover {
-    background-color: #1e40af;
-    border-radius: 4px;
+.navbar-brand:hover, .nav-link:hover, .nav-link.active {
+    color: #10b981 !important;
 }
 
 /* Hero Section */
@@ -53,14 +88,61 @@ body {
     transform: scale(1.05);
 }
 
-/* Countdown */
+/* Buttons */
+.btn-primary, .btn-success, .category-btn {
+    background: linear-gradient(45deg, #10b981, #34d399);
+    border: none;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: 25px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover, .btn-success:hover, .category-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(45deg, #34d399, #10b981);
+}
+
+.btn-outline-primary {
+    border-color: #1e40af;
+    color: #1e40af;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+    background: linear-gradient(45deg, #1e40af, #3b82f6);
+    color: #ffffff;
+}
+
+.category-btn.active {
+    background: linear-gradient(45deg, #10b981, #34d399) !important;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    color: #ffffff !important;
+}
+
+/* Countdown Section */
+section.countdown-section {
+    position: sticky;
+    top: 70px;
+    z-index: 900;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
 .countdown-item {
-    background-color: #2563eb;
-    color: white;
+    background: linear-gradient(45deg, #1e40af, #3b82f6);
+    color: #ffffff;
     padding: 20px;
     border-radius: 10px;
     min-width: 100px;
-    font-weight: bold;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .countdown-item span {
@@ -69,52 +151,157 @@ body {
 
 /* Cards */
 .card {
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #ffffff;
+    overflow: hidden;
 }
 
 .card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
 }
 
 .card-img-top {
     height: 200px;
     object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #111827;
+}
+
+.card-text {
+    color: #6b7280;
 }
 
 .player-position {
     display: inline-block;
-    background-color: #dbeafe;
-    color: #1e40af;
-    padding: 3px 8px;
+    background: linear-gradient(45deg, #10b981, #34d399);
+    color: #ffffff;
+    padding: 3px 10px;
     border-radius: 12px;
     font-size: 0.9rem;
 }
 
 /* Stats Section */
 .stats-section {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.stats-section h2 {
+    color: #ffffff;
 }
 
 .stats-section h3 {
     font-size: 2.5rem;
+    font-weight: 700;
+    color: #10b981;
     margin-bottom: 10px;
+}
+
+.stats-section p {
+    color: #e5e7eb;
 }
 
 /* Footer */
 footer {
-    background-color: #1e3a8a;
-    color: white;
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%);
+    color: #ffffff;
     text-align: center;
     padding: 20px 0;
+}
+
+footer a {
+    color: #10b981;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #34d399;
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+    color: #d1d5db;
+}
+
+body.dark-mode .navbar {
+    background: linear-gradient(90deg, #111827 0%, #1f2937 100%) !important;
+}
+
+body.dark-mode .card {
+    background: #1f2937;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .card-title {
+    color: #d1d5db;
+}
+
+body.dark-mode .card-text {
+    color: #9ca3af;
+}
+
+body.dark-mode .countdown-section {
+    background: rgba(31, 41, 55, 0.95);
+}
+
+body.dark-mode footer {
+    background: linear-gradient(90deg, #111827 0%, #1f2937 100%);
+}
+
+/* Dark Mode Toggle */
+#dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1000;
+    transition: background 0.3s ease;
+}
+
+#dark-mode-toggle:hover {
+    background: #34d399;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     .hero-section h1 {
         font-size: 2.5rem;
+    }
+    .hero-section .lead {
+        font-size: 1.2rem;
     }
     .hero-section .btn {
         padding: 10px 20px;
@@ -127,12 +314,9 @@ footer {
     .countdown-item span {
         font-size: 1.5rem;
     }
-    .card {
-        width: 100%;
-    }
 }
 
-/* Admin Panel (unchanged) */
+/* Admin Panel */
 .admin-section {
     margin-bottom: 40px;
 }
@@ -141,40 +325,48 @@ footer {
     margin-bottom: 15px;
 }
 
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+}
+
 .player-select {
-    height: 150px; /* Fixed height for better visibility */
-    overflow-y: auto; /* Scrollable */
-    width: 100%; /* Full width */
-    padding: 5px; /* Better spacing */
-    border: 1px solid #ced4da; /* Match Bootstrap input style */
-    border-radius: 4px;
+    height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
 }
 
 .player-select option {
-    padding: 5px; /* Make options easier to click */
+    padding: 5px;
 }
 
-.error {
-    color: red;
-    margin-bottom: 20px;
-}
-
-/* Modal Styles (unchanged) */
+/* Modal Styles */
 .modal-content {
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .modal-header {
-    background-color: #2563eb;
-    color: white;
+    background: linear-gradient(45deg, #1e40af, #3b82f6);
+    color: #ffffff;
 }
 
 .modal-title {
-    font-weight: bold;
+    font-weight: 600;
 }
 
 .list-group-item {
     border: none;
     padding: 8px 0;
+    color: #111827;
 }
