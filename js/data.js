@@ -1,160 +1,95 @@
-// Initialize data from localStorage or use defaults
-const defaultPlayers = [
-    { id: 1, name: "Michael Brown", regNum: "UNI12345", position: "Forward", image: "https://via.placeholder.com/200" },
-    { id: 2, name: "Thomas Anderson", regNum: "UNI23456", position: "Forward", image: "https://via.placeholder.com/200" },
-    { id: 3, name: "William Taylor", regNum: "UNI34567", position: "Forward", image: "https://via.placeholder.com/200" },
-    { id: 4, name: "David Wilson", regNum: "UNI45678", position: "Midfielder", image: "https://via.placeholder.com/200" },
-    { id: 5, name: "Christopher Lee", regNum: "UNI56789", position: "Midfielder", image: "https://via.placeholder.com/200" },
-    { id: 6, name: "Richard Walker", regNum: "UNI67890", position: "Midfielder", image: "https://via.placeholder.com/200" }
-];
+const firebaseConfig = {
+    apiKey: "AIzaSyB_EH7wjIv5F2qjKj40USbQ1BKgTvkmTjg",
+    authDomain: "intra-cse-football.firebaseapp.com",
+    projectId: "intra-cse-football",
+    storageBucket: "intra-cse-football.firebasestorage.app",
+    messagingSenderId: "560731856579",
+    appId: "1:560731856579:web:6363105bdef059b3cecc76"
+  };
 
-const defaultTeams = [
-    {
-        id: 1,
-        name: "Red Devils",
-        logo: "https://via.placeholder.com/60",
-        manager: "Alex Johnson",
-        owner: "John Smith",
-        playerIds: [1, 4]
-    },
-    {
-        id: 2,
-        name: "Blue Sharks",
-        logo: "https://via.placeholder.com/60",
-        manager: "Paul Davis",
-        owner: "Sarah Williams",
-        playerIds: [2, 5]
-    },
-    {
-        id: 3,
-        name: "Green Tigers",
-        logo: "https://via.placeholder.com/60",
-        manager: "Ryan Thompson",
-        owner: "Emma Johnson",
-        playerIds: [3, 6]
-    }
-];
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-const defaultSchedule = [
-    {
-        id: 1,
-        teams: ["Red Devils", "Blue Sharks"],
-        date: "May 10, 2025",
-        time: "4:00 PM",
-        location: "Main Ground",
-        status: "Upcoming"
-    },
-    {
-        id: 2,
-        teams: ["Green Tigers", "Yellow Eagles"],
-        date: "May 10, 2025",
-        time: "6:00 PM",
-        location: "Main Ground",
-        status: "Upcoming"
-    }
-];
-
-// Load or initialize data
-let players = JSON.parse(localStorage.getItem('players')) || defaultPlayers;
-let teams = JSON.parse(localStorage.getItem('teams')) || defaultTeams;
-let schedule = JSON.parse(localStorage.getItem('schedule')) || defaultSchedule;
-
-// Save functions
-function savePlayers() {
-    localStorage.setItem('players', JSON.stringify(players));
-}
-function removeTeam(id) {
-    teams = teams.filter(t => t.id !== id);
-    saveTeams();
+// Helper to get the highest ID in a collection
+async function getNextId(collectionName) {
+    const snapshot = await db.collection(collectionName).get();
+    if (snapshot.empty) return 1; // Start at 1 if collection is empty
+    const ids = snapshot.docs.map(doc => parseInt(doc.id)).filter(id => !isNaN(id));
+    return ids.length > 0 ? Math.max(...ids) + 1 : 1;
 }
 
-function removePlayer(id) {
-    players = players.filter(p => p.id !== id);
-    savePlayers();
-    // Remove player from all teams
-    teams.forEach(team => {
-        team.playerIds = team.playerIds.filter(pid => pid !== id);
-    });
-    saveTeams();
+// Players
+async function getPlayers() {
+    const snapshot = await db.collection('players').get();
+    return snapshot.docs.map(doc => ({ regNum: doc.id, ...doc.data() }));
 }
 
-function removeSchedule(id) {
-    schedule = schedule.filter(s => s.id !== id);
-    saveSchedule();
+async function addPlayer(player) {
+    if (!player.regNum) throw new Error("Registration number is required");
+    const existingPlayer = await db.collection('players').doc(player.regNum).get();
+    if (existingPlayer.exists) throw new Error(`Player with regNum ${player.regNum} already exists`);
+    const newPlayer = { ...player, regNum: player.regNum };
+    await db.collection('players').doc(player.regNum).set(newPlayer);
+    return newPlayer;
 }
 
-function saveTeams() {
-    localStorage.setItem('teams', JSON.stringify(teams));
+async function updatePlayer(regNum, player) {
+    await db.collection('players').doc(regNum).set({ ...player, regNum }, { merge: true });
+    return { regNum, ...player };
 }
 
-function saveSchedule() {
-    localStorage.setItem('schedule', JSON.stringify(schedule));
+async function removePlayer(regNum) {
+    await db.collection('players').doc(regNum).delete();
+    return { message: 'Player deleted' };
 }
 
-// CRUD for Players
-function addPlayer(player) {
-    player.id = players.length ? Math.max(...players.map(p => p.id)) + 1 : 1;
-    players.push(player);
-    savePlayers();
+// Teams
+async function getTeams() {
+    const snapshot = await db.collection('teams').get();
+    return snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
 }
 
-function updatePlayer(id, updatedPlayer) {
-    const index = players.findIndex(p => p.id === id);
-    if (index !== -1) {
-        players[index] = { ...players[index], ...updatedPlayer };
-        savePlayers();
-    }
+async function addTeam(team) {
+    const newId = await getNextId('teams');
+    const newTeam = { ...team, id: newId };
+    await db.collection('teams').doc(newId.toString()).set(newTeam);
+    return newTeam;
 }
 
-function deletePlayer(id) {
-    players = players.filter(p => p.id !== id);
-    // Remove player from teams
-    teams.forEach(team => {
-        team.playerIds = team.playerIds.filter(pid => pid !== id);
-    });
-    savePlayers();
-    saveTeams();
+async function updateTeam(id, team) {
+    await db.collection('teams').doc(id.toString()).set({ ...team, id: parseInt(id) }, { merge: true });
+    return { id: parseInt(id), ...team };
 }
 
-// CRUD for Teams
-function addTeam(team) {
-    team.id = teams.length ? Math.max(...teams.map(t => t.id)) + 1 : 1;
-    teams.push(team);
-    saveTeams();
+async function removeTeam(id) {
+    await db.collection('teams').doc(id.toString()).delete();
+    return { message: 'Team deleted' };
 }
 
-function updateTeam(id, updatedTeam) {
-    const index = teams.findIndex(t => t.id === id);
-    if (index !== -1) {
-        teams[index] = { ...teams[index], ...updatedTeam };
-        saveTeams();
-    }
+// Schedule
+async function getSchedule() {
+    const snapshot = await db.collection('schedule').get();
+    return snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
 }
 
-function deleteTeam(id) {
-    teams = teams.filter(t => t.id !== id);
-    // Update schedule
-    schedule = schedule.filter(s => !s.teams.includes(teams.find(t => t.id === id)?.name));
-    saveTeams();
-    saveSchedule();
+async function addSchedule(match) {
+    const newId = await getNextId('schedule');
+    const newMatch = { ...match, id: newId };
+    await db.collection('schedule').doc(newId.toString()).set(newMatch);
+    return newMatch;
 }
 
-// CRUD for Schedule
-function addSchedule(match) {
-    match.id = schedule.length ? Math.max(...schedule.map(s => s.id)) + 1 : 1;
-    schedule.push(match);
-    saveSchedule();
+async function updateSchedule(id, match) {
+    const existingMatch = await db.collection('schedule').doc(id.toString()).get();
+    if (!existingMatch.exists) throw new Error(`Schedule with ID ${id} does not exist`);
+    await db.collection('schedule').doc(id.toString()).set({ ...match, id: parseInt(id) }, { merge: true });
+    return { id: parseInt(id), ...match };
 }
 
-function updateSchedule(id, updatedMatch) {
-    const index = schedule.findIndex(s => s.id === id);
-    if (index !== -1) {
-        schedule[index] = { ...schedule[index], ...updatedMatch };
-        saveSchedule();
-    }
-}
-
-function deleteSchedule(id) {
-    schedule = schedule.filter(s => s.id !== id);
-    saveSchedule();
+async function removeSchedule(id) {
+    const existingMatch = await db.collection('schedule').doc(id.toString()).get();
+    if (!existingMatch.exists) throw new Error(`Schedule with ID ${id} does not exist`);
+    await db.collection('schedule').doc(id.toString()).delete();
+    return { message: 'Schedule deleted' };
 }

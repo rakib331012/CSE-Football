@@ -3,21 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Football Tournament</title>
+    <title>Admin Panel - University Football Tournament</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .admin-section { margin-bottom: 40px; }
-        .form-group { margin-bottom: 15px; }
-        .player-select { max-height: 200px; overflow-y: auto; }
-        .error { color: red; }
-    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+    <!-- Data Functions -->
+    <script src="js/data.js"></script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="index.html">Football Tournament</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">Football Tournament</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -27,30 +32,50 @@
                     <li class="nav-item"><a class="nav-link" href="teams.html">Teams</a></li>
                     <li class="nav-item"><a class="nav-link" href="auction.html">Auction</a></li>
                     <li class="nav-item"><a class="nav-link" href="schedule.html">Schedule</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="admin.html">Admin</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <h1 class="text-center">Admin Panel</h1>
-        <div id="error" class="error text-center"></div>
+    <!-- Login Form -->
+    <div id="login-form" class="container my-5">
+        <h2 class="text-center">Admin Login</h2>
+        <div class="form-group">
+            <label for="admin-email">Email:</label>
+            <input type="email" id="admin-email" class="form-control" placeholder="admin@tournament.com" required>
+        </div>
+        <div class="form-group">
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" class="form-control" placeholder="Password" required>
+        </div>
+        <button id="login-btn" class="btn btn-primary mt-2">Login</button>
+        <p id="login-error" class="text-danger mt-2"></p>
+    </div>
 
-        <!-- Players Section -->
-        <div class="admin-section">
-            <h2>Manage Players</h2>
+    <!-- Admin Content (Hidden Initially) -->
+    <div id="admin-content" style="display: none;">
+        <!-- Logout Button -->
+        <div class="container my-3 text-end">
+            <button id="logout-btn" class="btn btn-danger">Logout</button>
+        </div>
+
+        <!-- Admin Panel Content -->
+        <div class="container my-5">
+            <div id="error" class="alert alert-danger" style="display: none;"></div>
+
+            <h2 class="text-center">Manage Players</h2>
             <form id="player-form">
+                <input type="hidden" id="player-id">
                 <div class="form-group">
-                    <label for="player-name">Name</label>
+                    <label for="player-name">Player Name:</label>
                     <input type="text" id="player-name" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="player-regNum">Registration Number</label>
+                    <label for="player-regNum">Registration Number:</label>
                     <input type="text" id="player-regNum" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="player-position">Position</label>
+                    <label for="player-position">Position:</label>
                     <select id="player-position" class="form-control" required>
                         <option value="Forward">Forward</option>
                         <option value="Midfielder">Midfielder</option>
@@ -59,107 +84,97 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="player-image">Image URL</label>
-                    <input type="url" id="player-image" class="form-control" placeholder="https://...">
+                    <label for="player-image">Image URL:</label>
+                    <input type="url" id="player-image" class="form-control">
                 </div>
-                <input type="hidden" id="player-id">
                 <button type="submit" id="player-submit" class="btn btn-primary">Add Player</button>
             </form>
-            <div class="row mt-4" id="admin-players-list"></div>
         </div>
 
-        <!-- Teams Section -->
-        <div class="admin-section">
-            <h2>Manage Teams</h2>
+        <div class="container my-5">
+            <h2 class="text-center">Players List</h2>
+            <div id="admin-players-list" class="row"></div>
+        </div>
+
+        <div class="container my-5">
+            <h2 class="text-center">Manage Teams</h2>
             <form id="team-form">
+                <input type="hidden" id="team-id">
                 <div class="form-group">
-                    <label for="team-name">Team Name</label>
+                    <label for="team-name">Team Name:</label>
                     <input type="text" id="team-name" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="team-manager">Manager</label>
+                    <label for="team-manager">Manager:</label>
                     <input type="text" id="team-manager" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="team-owner">Owner</label>
+                    <label for="team-owner">Owner:</label>
                     <input type="text" id="team-owner" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="team-logo">Logo URL</label>
-                    <input type="url" id="team-logo" class="form-control" placeholder="https://...">
+                    <label for="team-logo">Logo URL:</label>
+                    <input type="url" id="team-logo" class="form-control">
                 </div>
                 <div class="form-group">
-                    <label for="team-players">Players</label>
+                    <label for="team-players">Players:</label>
                     <select id="team-players" class="form-control player-select" multiple></select>
                 </div>
-                <input type="hidden" id="team-id">
                 <button type="submit" id="team-submit" class="btn btn-primary">Add Team</button>
             </form>
-            <div class="row mt-4" id="admin-teams-list"></div>
         </div>
 
-        <!-- Schedule Section -->
-        <div class="admin-section">
-            <h2>Manage Schedule</h2>
+        <div class="container my-5">
+            <h2 class="text-center">Teams List</h2>
+            <div id="admin-teams-list" class="row"></div>
+        </div>
+
+        <div class="container my-5">
+            <h2 class="text-center">Manage Schedule</h2>
             <form id="schedule-form">
+                <input type="hidden" id="schedule-id">
                 <div class="form-group">
-                    <label for="schedule-team1">Team 1</label>
+                    <label for="schedule-team1">Team 1:</label>
                     <select id="schedule-team1" class="form-control" required></select>
                 </div>
                 <div class="form-group">
-                    <label for="schedule-team2">Team 2</label>
+                    <label for="schedule-team2">Team 2:</label>
                     <select id="schedule-team2" class="form-control" required></select>
                 </div>
                 <div class="form-group">
-                    <label for="schedule-date">Date</label>
+                    <label for="schedule-date">Date:</label>
                     <input type="date" id="schedule-date" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="schedule-time">Time</label>
+                    <label for="schedule-time">Time:</label>
                     <input type="time" id="schedule-time" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="schedule-location">Location</label>
+                    <label for="schedule-location">Location:</label>
                     <input type="text" id="schedule-location" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="schedule-status">Status</label>
+                    <label for="schedule-status">Status:</label>
                     <select id="schedule-status" class="form-control" required>
-                        <option value="Upcoming">Upcoming</option>
+                        <option value="Scheduled">Scheduled</option>
                         <option value="Completed">Completed</option>
-                        <option value="Postponed">Postponed</option>
+                        <option value="Cancelled">Cancelled</option>
                     </select>
                 </div>
-                <input type="hidden" id="schedule-id">
                 <button type="submit" id="schedule-submit" class="btn btn-primary">Add Match</button>
             </form>
-            <div class="row mt-4" id="admin-schedule-list"></div>
+        </div>
+
+        <div class="container my-5">
+            <h2 class="text-center">Schedule List</h2>
+            <div id="admin-schedule-list" class="row"></div>
         </div>
     </div>
 
-    <footer class="mt-5">
-        <div class="container">
-            <p>&copy; Mehedi Hassan Rakib| 
-                <a href="https://www.facebook.com/rakibmh100/" target="_blank"> Facebook </a> | 
-                
-            </p>
-        </div>
-    </footer>
-
-    <script src="js/data.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
-        // Admin password (change this!)
-        const ADMIN_PASSWORD = "rakib12";
-    
-        // Check password
-        const enteredPassword = prompt("Enter admin password:");
-        if (enteredPassword !== ADMIN_PASSWORD) {
-            alert("Incorrect password!");
-            window.location.href = "index.html";
-        }
-    
         // DOM Elements
         const playerForm = document.getElementById('player-form');
         const teamForm = document.getElementById('team-form');
@@ -168,10 +183,72 @@
         const teamSubmit = document.getElementById('team-submit');
         const scheduleSubmit = document.getElementById('schedule-submit');
         const errorDiv = document.getElementById('error');
+        const loginError = document.getElementById('login-error');
+    
+        // Firebase Authentication State Listener
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                // User is logged in, show admin panel
+                document.getElementById('admin-content').style.display = 'block';
+                document.getElementById('login-form').style.display = 'none';
+                initializeAdminPanel();
+            } else {
+                // User is not logged in, show login form
+                document.getElementById('admin-content').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            }
+        });
+    
+        // Login Button Handler
+        document.getElementById('login-btn').addEventListener('click', () => {
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            if (!email || !password) {
+                loginError.textContent = 'Please enter both email and password.';
+                return;
+            }
+            firebase.auth().signInWithEmailAndPassword(email, password)
+                .catch(err => {
+                    loginError.textContent = 'Login failed: ' + err.message;
+                });
+        });
+    
+        // Logout Button Handler
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            firebase.auth().signOut().then(() => {
+                window.location.reload(); // Refresh to show login form
+            });
+        });
+    
+        // Initialize Admin Panel
+        async function initializeAdminPanel() {
+            try {
+                // Initial render for players and teams
+                await Promise.all([
+                    renderAdminPlayers(),
+                    renderAdminTeams(),
+                    populatePlayerSelect(),
+                    populateTeamSelects()
+                ]);
+    
+                // Set up real-time listener for schedule
+                db.collection('schedule').onSnapshot(snapshot => {
+                    const schedule = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
+                    renderAdminSchedule(schedule.sort((a, b) => a.id - b.id));
+                }, err => {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = 'Error listening to schedule: ' + err.message;
+                });
+            } catch (err) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Error loading admin panel: ' + err.message;
+            }
+        }
     
         // Render admin lists
-        function renderAdminPlayers() {
+        async function renderAdminPlayers() {
             const container = document.getElementById('admin-players-list');
+            const players = await getPlayers();
             container.innerHTML = '';
             players.forEach(player => {
                 container.innerHTML += `
@@ -182,8 +259,8 @@
                                 <h5 class="card-title">${player.name}</h5>
                                 <p class="player-position">${player.position}</p>
                                 <p class="card-text">Reg: ${player.regNum}</p>
-                                <button class="btn btn-warning btn-sm edit-player" data-id="${player.id}">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-player" data-id="${player.id}">Delete</button>
+                                <button class="btn btn-warning btn-sm edit-player" data-regnum="${player.regNum}" aria-label="Edit player ${player.name}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-player" data-regnum="${player.regNum}" aria-label="Delete player ${player.name}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -193,23 +270,25 @@
             // Attach event listeners directly
             document.querySelectorAll('.edit-player').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    console.log(`Edit player clicked: ${btn.dataset.id}`);
-                    editPlayer(btn.dataset.id);
+                    console.log(`Edit player clicked: ${btn.dataset.regnum}`);
+                    editPlayer(btn.dataset.regnum);
                 });
             });
             document.querySelectorAll('.delete-player').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    console.log(`Delete player clicked: ${btn.dataset.id}`);
-                    deletePlayer(parseInt(btn.dataset.id));
+                btn.addEventListener('click', async () => {
+                    console.log(`Delete player clicked: ${btn.dataset.regnum}`);
+                    await deletePlayer(btn.dataset.regnum);
                 });
             });
         }
     
-        function renderAdminTeams() {
+        async function renderAdminTeams() {
             const container = document.getElementById('admin-teams-list');
+            const teams = await getTeams();
+            const players = await getPlayers();
             container.innerHTML = '';
             teams.forEach(team => {
-                const teamPlayers = players.filter(p => team.playerIds.includes(p.id));
+                const teamPlayers = players.filter(p => team.playerRegNums.includes(p.regNum));
                 const playerNames = teamPlayers.map(p => `${p.name} (${p.position})`).join(', ');
                 container.innerHTML += `
                     <div class="col-md-6 mb-4">
@@ -222,8 +301,8 @@
                                     Owner: ${team.owner}<br>
                                     Players: ${playerNames || 'None'}
                                 </p>
-                                <button class="btn btn-warning btn-sm edit-team" data-id="${team.id}">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-team" data-id="${team.id}">Delete</button>
+                                <button class="btn btn-warning btn-sm edit-team" data-id="${team.id}" aria-label="Edit team ${team.name}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-team" data-id="${team.id}" aria-label="Delete team ${team.name}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -243,14 +322,14 @@
             });
     
             deleteButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
                     console.log(`Delete team clicked: ${btn.dataset.id}`);
-                    deleteTeam(parseInt(btn.dataset.id));
+                    await deleteTeam(parseInt(btn.dataset.id));
                 });
             });
         }
     
-        function renderAdminSchedule() {
+        function renderAdminSchedule(schedule) {
             const container = document.getElementById('admin-schedule-list');
             container.innerHTML = '';
             schedule.forEach(match => {
@@ -265,8 +344,8 @@
                                     Location: ${match.location}<br>
                                     Status: ${match.status}
                                 </p>
-                                <button class="btn btn-warning btn-sm edit-schedule" data-id="${match.id}">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-schedule" data-id="${match.id}">Delete</button>
+                                <button class="btn btn-warning btn-sm edit-schedule" data-id="${match.id}" aria-label="Edit schedule for ${match.teams[0]} vs ${match.teams[1]}">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-schedule" data-id="${match.id}" aria-label="Delete schedule for ${match.teams[0]} vs ${match.teams[1]}">Delete</button>
                             </div>
                         </div>
                     </div>
@@ -281,17 +360,18 @@
                 });
             });
             document.querySelectorAll('.delete-schedule').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click', async () => {
                     console.log(`Delete schedule clicked: ${btn.dataset.id}`);
-                    deleteSchedule(parseInt(btn.dataset.id));
+                    await deleteSchedule(parseInt(btn.dataset.id));
                 });
             });
         }
     
         // Populate team selects
-        function populateTeamSelects() {
+        async function populateTeamSelects() {
             const team1Select = document.getElementById('schedule-team1');
             const team2Select = document.getElementById('schedule-team2');
+            const teams = await getTeams();
             team1Select.innerHTML = '<option value="">Select Team</option>';
             team2Select.innerHTML = '<option value="">Select Team</option>';
             teams.forEach(team => {
@@ -301,19 +381,20 @@
         }
     
         // Populate player select
-        function populatePlayerSelect(selectedIds = []) {
+        async function populatePlayerSelect(selectedRegNums = []) {
             const playerSelect = document.getElementById('team-players');
+            const players = await getPlayers();
             playerSelect.innerHTML = '';
             players.forEach(player => {
-                const isSelected = selectedIds.includes(player.id) ? 'selected' : '';
-                playerSelect.innerHTML += `<option value="${player.id}" ${isSelected}>${player.name} (${player.position})</option>`;
+                const isSelected = selectedRegNums.includes(player.regNum) ? 'selected' : '';
+                playerSelect.innerHTML += `<option value="${player.regNum}" ${isSelected}>${player.name} (${player.position})</option>`;
             });
         }
     
         // Player form handling
-        playerForm.addEventListener('submit', e => {
+        playerForm.addEventListener('submit', async e => {
             e.preventDefault();
-            const id = parseInt(document.getElementById('player-id').value);
+            const regNum = document.getElementById('player-id').value || document.getElementById('player-regNum').value;
             const player = {
                 name: document.getElementById('player-name').value,
                 regNum: document.getElementById('player-regNum').value,
@@ -322,103 +403,115 @@
             };
     
             try {
-                if (id) {
-                    updatePlayer(id, player);
-                    playerSubmit.textContent = 'Add Player';
-                    document.getElementById('player-id').value = '';
+                if (regNum && regNum !== player.regNum) {
+                    // If regNum is being edited, delete the old document and create a new one
+                    await removePlayer(regNum);
+                    await addPlayer(player);
+                } else if (regNum) {
+                    await updatePlayer(regNum, player);
                 } else {
-                    addPlayer(player);
+                    await addPlayer(player);
                 }
+                playerSubmit.textContent = 'Add Player';
+                document.getElementById('player-id').value = '';
                 playerForm.reset();
-                renderAdminPlayers();
-                populatePlayerSelect();
+                await renderAdminPlayers();
+                await populatePlayerSelect();
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error saving player: ' + err.message;
             }
         });
     
-        function editPlayer(id) {
-            const player = players.find(p => p.id === parseInt(id));
-            if (player) {
-                document.getElementById('player-name').value = player.name;
-                document.getElementById('player-regNum').value = player.regNum;
-                document.getElementById('player-position').value = player.position;
-                document.getElementById('player-image').value = player.image;
-                document.getElementById('player-id').value = player.id;
-                playerSubmit.textContent = 'Update Player';
-            } else {
-                console.error(`Player with ID ${id} not found`);
-            }
+        function editPlayer(regNum) {
+            getPlayers().then(players => {
+                const player = players.find(p => p.regNum === regNum);
+                if (player) {
+                    document.getElementById('player-name').value = player.name;
+                    document.getElementById('player-regNum').value = player.regNum;
+                    document.getElementById('player-position').value = player.position;
+                    document.getElementById('player-image').value = player.image;
+                    document.getElementById('player-id').value = player.regNum;
+                    playerSubmit.textContent = 'Update Player';
+                } else {
+                    console.error(`Player with regNum ${regNum} not found`);
+                }
+            });
         }
     
-        function deletePlayer(id) {
+        async function deletePlayer(regNum) {
             try {
-                removePlayer(id);
-                renderAdminPlayers();
-                populatePlayerSelect();
+                await removePlayer(regNum);
+                await renderAdminPlayers();
+                await populatePlayerSelect();
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error deleting player: ' + err.message;
             }
         }
     
         // Team form handling
-        teamForm.addEventListener('submit', e => {
+        teamForm.addEventListener('submit', async e => {
             e.preventDefault();
             const id = document.getElementById('team-id').value ? parseInt(document.getElementById('team-id').value) : null;
             const playerSelect = document.getElementById('team-players');
-            const selectedPlayerIds = Array.from(playerSelect.selectedOptions).map(opt => parseInt(opt.value));
+            const selectedPlayerRegNums = Array.from(playerSelect.selectedOptions).map(opt => opt.value);
             const team = {
                 name: document.getElementById('team-name').value,
                 manager: document.getElementById('team-manager').value,
                 owner: document.getElementById('team-owner').value,
                 logo: document.getElementById('team-logo').value || 'https://via.placeholder.com/60',
-                playerIds: selectedPlayerIds
+                playerRegNums: selectedPlayerRegNums
             };
     
             try {
                 if (id) {
-                    updateTeam(id, team);
+                    await updateTeam(id, team);
                     teamSubmit.textContent = 'Add Team';
                     document.getElementById('team-id').value = '';
                 } else {
-                    addTeam(team);
+                    await addTeam(team);
                 }
                 teamForm.reset();
-                renderAdminTeams();
-                populateTeamSelects();
-                populatePlayerSelect();
+                await renderAdminTeams();
+                await populateTeamSelects();
+                await populatePlayerSelect();
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error saving team: ' + err.message;
             }
         });
     
         function editTeam(id) {
-            const team = teams.find(t => t.id === parseInt(id));
-            if (team) {
-                document.getElementById('team-name').value = team.name;
-                document.getElementById('team-manager').value = team.manager;
-                document.getElementById('team-owner').value = team.owner;
-                document.getElementById('team-logo').value = team.logo;
-                document.getElementById('team-id').value = team.id;
-                populatePlayerSelect(team.playerIds);
-                teamSubmit.textContent = 'Update Team';
-            } else {
-                console.error(`Team with ID ${id} not found`);
-            }
+            getTeams().then(teams => {
+                const team = teams.find(t => t.id === parseInt(id));
+                if (team) {
+                    document.getElementById('team-name').value = team.name;
+                    document.getElementById('team-manager').value = team.manager;
+                    document.getElementById('team-owner').value = team.owner;
+                    document.getElementById('team-logo').value = team.logo;
+                    document.getElementById('team-id').value = team.id;
+                    populatePlayerSelect(team.playerRegNums || []);
+                    teamSubmit.textContent = 'Update Team';
+                } else {
+                    console.error(`Team with ID ${id} not found`);
+                }
+            });
         }
     
-        function deleteTeam(id) {
+        async function deleteTeam(id) {
             try {
-                removeTeam(id);
-                renderAdminTeams();
-                populateTeamSelects();
+                await removeTeam(id);
+                await renderAdminTeams();
+                await populateTeamSelects();
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error deleting team: ' + err.message;
             }
         }
     
         // Schedule form handling
-        scheduleForm.addEventListener('submit', e => {
+        scheduleForm.addEventListener('submit', async e => {
             e.preventDefault();
             const id = document.getElementById('schedule-id').value ? parseInt(document.getElementById('schedule-id').value) : null;
             const match = {
@@ -437,53 +530,44 @@
                     throw new Error("Teams cannot be the same!");
                 }
                 if (id) {
-                    updateSchedule(id, match);
+                    await updateSchedule(id, match);
                     scheduleSubmit.textContent = 'Add Match';
                     document.getElementById('schedule-id').value = '';
                 } else {
-                    addSchedule(match);
+                    await addSchedule(match);
                 }
                 scheduleForm.reset();
-                renderAdminSchedule();
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error saving match: ' + err.message;
             }
         });
     
         function editSchedule(id) {
-            const match = schedule.find(s => s.id === parseInt(id));
-            if (match) {
-                document.getElementById('schedule-team1').value = match.teams[0];
-                document.getElementById('schedule-team2').value = match.teams[1];
-                document.getElementById('schedule-date').value = match.date;
-                document.getElementById('schedule-time').value = match.time;
-                document.getElementById('schedule-location').value = match.location;
-                document.getElementById('schedule-status').value = match.status;
-                document.getElementById('schedule-id').value = match.id;
-                scheduleSubmit.textContent = 'Update Match';
-            } else {
-                console.error(`Schedule with ID ${id} not found`);
-            }
+            getSchedule().then(schedule => {
+                const match = schedule.find(s => s.id === parseInt(id));
+                if (match) {
+                    document.getElementById('schedule-team1').value = match.teams[0];
+                    document.getElementById('schedule-team2').value = match.teams[1];
+                    document.getElementById('schedule-date').value = match.date;
+                    document.getElementById('schedule-time').value = match.time;
+                    document.getElementById('schedule-location').value = match.location;
+                    document.getElementById('schedule-status').value = match.status;
+                    document.getElementById('schedule-id').value = match.id;
+                    scheduleSubmit.textContent = 'Update Match';
+                } else {
+                    console.error(`Schedule with ID ${id} not found`);
+                }
+            });
         }
     
-        function deleteSchedule(id) {
+        async function deleteSchedule(id) {
             try {
-                removeSchedule(id);
-                renderAdminSchedule();
+                await removeSchedule(id);
             } catch (err) {
+                errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error deleting schedule: ' + err.message;
             }
-        }
-    
-        // Initialize
-        try {
-            renderAdminPlayers();
-            renderAdminTeams();
-            renderAdminSchedule();
-            populatePlayerSelect();
-            populateTeamSelects();
-        } catch (err) {
-            errorDiv.textContent = 'Error loading admin panel: ' + err.message;
         }
     </script>
 </body>
