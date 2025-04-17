@@ -143,7 +143,10 @@
                 </div>
                 <div class="form-group">
                     <label for="team-players">Players (Hold Ctrl/Cmd to select multiple):</label>
-                    <select id="team-players" class="form-control player-select" multiple required></select>
+                    <select id="team-players" class="form-control player-select" multiple>
+                        <!-- Options populated dynamically via JavaScript -->
+                    </select>
+                    <small class="form-text text-muted">You can add players later after the auction.</small>
                 </div>
                 <button type="submit" id="team-submit" class="btn btn-primary">Add Team</button>
             </form>
@@ -354,8 +357,8 @@
             const players = await getPlayers();
             container.innerHTML = '';
             teams.forEach(team => {
-                const teamPlayers = players.filter(p => team.playerRegNums.includes(p.regNum));
-                const playerNames = teamPlayers.map(p => `${p.name} (${p.position})`).join(', ');
+                const teamPlayers = players.filter(p => (team.playerRegNums || []).includes(p.regNum));
+                const playerNames = teamPlayers.length > 0 ? teamPlayers.map(p => `${p.name} (${p.position})`).join(', ') : 'No players assigned yet';
                 container.innerHTML += `
                     <div class="col-md-6 mb-4">
                         <div class="card">
@@ -365,7 +368,8 @@
                                 <p class="card-text">
                                     Manager: ${team.manager}<br>
                                     Owner: ${team.owner}<br>
-                                    Players: ${playerNames || 'None'}
+                                    Group: ${team.group}<br>
+                                    Players: ${playerNames}
                                 </p>
                                 <button class="btn btn-warning btn-sm edit-team" data-id="${team.id}" aria-label="Edit team ${team.name}">Edit</button>
                                 <button class="btn btn-danger btn-sm delete-team" data-id="${team.id}" aria-label="Delete team ${team.name}">Delete</button>
@@ -374,13 +378,13 @@
                     </div>
                 `;
             });
-
+        
             document.querySelectorAll('.edit-team').forEach(btn => {
                 btn.addEventListener('click', () => {
                     editTeam(btn.dataset.id);
                 });
             });
-
+        
             document.querySelectorAll('.delete-team').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     await deleteTeam(parseInt(btn.dataset.id));
@@ -599,22 +603,16 @@
             const id = document.getElementById('team-id').value ? parseInt(document.getElementById('team-id').value) : null;
             const playerSelect = document.getElementById('team-players');
             const selectedPlayerRegNums = Array.from(playerSelect.selectedOptions).map(opt => opt.value);
-
-            if (!selectedPlayerRegNums.length) {
-                errorDiv.style.display = 'block';
-                errorDiv.textContent = 'Please select at least one player for the team.';
-                return;
-            }
-
+        
             const team = {
                 name: document.getElementById('team-name').value,
                 manager: document.getElementById('team-manager').value,
                 owner: document.getElementById('team-owner').value,
                 logo: document.getElementById('team-logo').value || 'https://via.placeholder.com/60',
-                playerRegNums: selectedPlayerRegNums,
+                playerRegNums: selectedPlayerRegNums.length > 0 ? selectedPlayerRegNums : [], // Default to empty array if no players selected
                 group: document.getElementById('team-group').value
             };
-
+        
             try {
                 if (id) {
                     await updateTeam(id, team);
