@@ -4,12 +4,14 @@ const firebaseConfig = {
     projectId: "intra-cse-football",
     storageBucket: "intra-cse-football.firebasestorage.app",
     messagingSenderId: "560731856579",
-    appId: "1:560731856579:web:6363105bdef059b3cecc76"
+    appId: "1:560731856579:web:6363105bdef059b3cecc76",
+    measurementId: "G-2N7G8MWWB3"
   };
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const analytics = getAnalytics(app);
 
 // Helper to get the highest ID in a collection
 async function getNextId(collectionName) {

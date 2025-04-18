@@ -1,7 +1,7 @@
-/* Import modern fonts (already included Poppins) */
+/* Import modern fonts (unchanged) */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-/* Global styles */
+/* Global styles (unchanged) */
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -17,7 +17,7 @@ body {
     padding: 20px;
 }
 
-/* Preloader */
+/* Preloader (unchanged) */
 #preloader {
     position: fixed;
     top: 0;
@@ -46,7 +46,7 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Navbar */
+/* Navbar (unchanged) */
 .navbar {
     background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -65,11 +65,73 @@ body {
     color: #10b981 !important;
 }
 
-/* Hero Section */
+/* Cards (modified to fix logo cropping) */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    width: 100%;
+    height: auto; /* Allow natural height to avoid cropping */
+    min-height: 100px; /* Minimum height to ensure visibility */
+    max-height: 200px; /* Cap height to prevent overly large logos */
+    object-fit: contain; /* Show full image without cropping */
+    padding: 10px; /* Add padding to avoid touching edges */
+    background-color: transparent; /* Remove any background that might clip */
+    transition: transform 0.3s ease;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: #111827;
+}
+
+.card-text {
+    color: #6b7280;
+}
+
+/* Specific styling for team list cards in admin and teams pages */
+#admin-teams-list .card-img-top,
+#teams-list .card-img-top {
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+    padding: 2px;
+}
+
+/* Modal logo in teams.html */
+#teamModal .modal-body img {
+    max-width: 100%;
+    max-height: 200px; /* Increased to accommodate full logo */
+    width: auto;
+    height: auto;
+    object-fit: contain; /* Show full logo without cropping */
+    display: block;
+    margin: 0 auto; /* Center the logo */
+}
+
+/* Rest of the styles remain unchanged */
 .hero-section {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     min-height: 100vh;
-    padding-top: 80px; /* Adjust for fixed navbar */
+    padding-top: 80px;
     background: url('https://www.shutterstock.com/image-photo/american-football-arena-yellow-goal-600nw-2357573507.jpg') no-repeat center/cover;
 }
 
@@ -147,43 +209,6 @@ section.countdown-section {
 
 .countdown-item span {
     font-size: 2rem;
-}
-
-/* Cards */
-.card {
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    background: #ffffff;
-    overflow: hidden;
-}
-
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.card:hover .card-img-top {
-    transform: scale(1.05);
-}
-
-.card-body {
-    padding: 1.5rem;
-}
-
-.card-title {
-    font-weight: 600;
-    color: #111827;
-}
-
-.card-text {
-    color: #6b7280;
 }
 
 .player-position {
@@ -356,7 +381,7 @@ body.dark-mode footer {
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #10b981; /* Green accent border */
+    border: 3px solid #10b981;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -370,7 +395,7 @@ body.dark-mode footer {
 
 /* Dark Mode Adjustments */
 body.dark-mode .admin-icon {
-    border-color: #34d399; /* Lighter green in dark mode */
+    border-color: #34d399;
     box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
 }
 

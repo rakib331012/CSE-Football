@@ -35,7 +35,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">Football Tournament</a>
+            <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">SUST CSE Football Tournament</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -89,26 +89,24 @@
         function renderPlayers(players) {
             playersList.innerHTML = '';
             let filteredPlayers = players;
-
-            // Apply category filter
+        
             if (currentCategory !== 'all') {
                 filteredPlayers = filteredPlayers.filter(player => player.position === currentCategory);
             }
-
-            // Apply search filter
+        
             if (searchTerm) {
                 filteredPlayers = filteredPlayers.filter(player => 
                     player.name.toLowerCase().includes(searchTerm.toLowerCase())
                 );
             }
-
-            // Render filtered players
+        
             filteredPlayers.forEach(player => {
                 const teamDisplay = player.team || 'No Team';
+                const imageSrc = player.image && player.image.startsWith('data:image') ? player.image : 'https://via.placeholder.com/200';
                 playersList.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card animate__animated animate__fadeIn">
-                            <img src="${player.image}" class="card-img-top" alt="${player.name}">
+                            <img src="${imageSrc}" class="card-img-top" alt="${player.name}" onerror="this.src='https://via.placeholder.com/200'">
                             <div class="card-body">
                                 <h5 class="card-title">${player.name}</h5>
                                 <p class="player-position">${player.position}</p>
@@ -119,8 +117,7 @@
                     </div>
                 `;
             });
-
-            // Show message if no players match the filters
+        
             if (filteredPlayers.length === 0) {
                 playersList.innerHTML = `
                     <div class="col-12 text-center">

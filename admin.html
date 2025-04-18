@@ -12,7 +12,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
     <script src="js/data.js"></script>
     <style>
-        /* Styles for dynamic goal scorers input */
         .goal-scorer-entry {
             display: flex;
             align-items: center;
@@ -25,17 +24,67 @@
         .goal-scorer-entry .btn {
             margin-left: 0.5rem;
         }
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .custom-multi-select {
+            position: relative;
+        }
+        .custom-multi-select .search-input {
+            width: 100%;
+            padding-right: 30px;
+        }
+        .custom-multi-select .dropdown-menu {
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .custom-multi-select .dropdown-menu.show {
+            display: block;
+        }
+        .custom-multi-select .dropdown-item {
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+        .custom-multi-select .dropdown-item:hover,
+        .custom-multi-select .dropdown-item.selected {
+            background-color: #f0f0f0;
+        }
+        .custom-multi-select .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .custom-multi-select .tag {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        .custom-multi-select .tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .image-preview {
+            max-width: 200px;
+            margin-top: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <!-- Preloader -->
     <div id="preloader">
         <div class="spinner"></div>
     </div>
-
-    <!-- Dark Mode Toggle -->
     <button id="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button>
-
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">Football Tournament</a>
@@ -55,7 +104,6 @@
             </div>
         </div>
     </nav>
-
     <div id="login-form" class="container my-5">
         <div class="text-center mb-4">
             <img src="images/admin-icon.jpg" alt="Mehedi Hassan Rakib - Admin" class="admin-icon animate__animated animate__zoomIn">
@@ -72,15 +120,12 @@
         <button id="login-btn" class="btn btn-primary mt-2">Login</button>
         <p id="login-error" class="text-danger mt-2"></p>
     </div>
-
     <div id="admin-content" style="display: none;">
         <div class="container my-3 text-end">
             <button id="logout-btn" class="btn btn-danger">Logout</button>
         </div>
-
         <div class="container my-5">
             <div id="error" class="alert alert-danger" style="display: none;"></div>
-
             <h2 class="text-center">Manage Players</h2>
             <form id="player-form">
                 <input type="hidden" id="player-id">
@@ -102,18 +147,25 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="player-image">Image URL:</label>
-                    <input type="url" id="player-image" class="form-control">
+                    <label for="player-image">Player Image:</label>
+                    <input type="file" id="player-image" class="form-control" accept="image/*">
+                    <img id="player-image-preview" class="image-preview" alt="Player Image Preview">
                 </div>
                 <button type="submit" id="player-submit" class="btn btn-primary">Add Player</button>
             </form>
         </div>
-
         <div class="container my-5">
             <h2 class="text-center">Players List</h2>
+            <div class="search-bar mb-3">
+                <input type="text" id="player-search" class="form-control" placeholder="Search players by name or reg number...">
+            </div>
             <div id="admin-players-list" class="row"></div>
+            <div class="pagination-container">
+                <nav aria-label="Player pagination">
+                    <ul id="player-pagination" class="pagination"></ul>
+                </nav>
+            </div>
         </div>
-
         <div class="container my-5">
             <h2 class="text-center">Manage Teams</h2>
             <form id="team-form">
@@ -131,8 +183,9 @@
                     <input type="text" id="team-owner" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="team-logo">Logo URL:</label>
-                    <input type="url" id="team-logo" class="form-control">
+                    <label for="team-logo">Team Logo:</label>
+                    <input type="file" id="team-logo" class="form-control" accept="image/*">
+                    <img id="team-logo-preview" class="image-preview" alt="Team Logo Preview">
                 </div>
                 <div class="form-group">
                     <label for="team-group">Group:</label>
@@ -142,21 +195,22 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="team-players">Players (Hold Ctrl/Cmd to select multiple):</label>
-                    <select id="team-players" class="form-control player-select" multiple>
-                        <!-- Options populated dynamically via JavaScript -->
-                    </select>
+                    <label for="team-players">Players (Search and select):</label>
+                    <div id="team-players" class="custom-multi-select">
+                        <input type="text" class="form-control search-input" placeholder="Search players by name or reg number...">
+                        <div class="dropdown-menu" aria-labelledby="team-players"></div>
+                        <div class="selected-tags"></div>
+                        <input type="hidden" name="team-players" id="team-players-hidden">
+                    </div>
                     <small class="form-text text-muted">You can add players later after the auction.</small>
                 </div>
                 <button type="submit" id="team-submit" class="btn btn-primary">Add Team</button>
             </form>
         </div>
-
         <div class="container my-5">
             <h2 class="text-center">Teams List</h2>
             <div id="admin-teams-list" class="row"></div>
         </div>
-
         <div class="container my-5">
             <h2 class="text-center">Manage Schedule</h2>
             <form id="schedule-form">
@@ -200,9 +254,7 @@
                     </div>
                     <div class="form-group">
                         <label>Goal Scorers:</label>
-                        <div id="goal-scorers-list">
-                            <!-- Dynamic goal scorer entries will be added here -->
-                        </div>
+                        <div id="goal-scorers-list"></div>
                         <button type="button" id="add-goal-scorer" class="btn btn-secondary mt-2">Add Goal Scorer</button>
                     </div>
                     <div class="form-group">
@@ -213,37 +265,29 @@
                 <button type="submit" id="schedule-submit" class="btn btn-primary">Add Match</button>
             </form>
         </div>
-
         <div class="container my-5">
             <h2 class="text-center">Schedule List</h2>
             <div id="admin-schedule-list" class="row"></div>
         </div>
     </div>
-
     <footer class="mt-5">
         <div class="container">
-            <p>&copy; Mehedi Hassan Rakib</p>
+            <p>© Mehedi Hassan Rakib</p>
             <p>
-                <a href="https://www.facebook.com/rakibmh100/" target="_blank">Facebook</a> | 
-                <a href="mailto:rakibmh100@gmail.com">
-                    <i class="fas fa-envelope"></i> Email
-                </a> |
+                <a href="https://www.facebook.com/rakibmh100/" target="_blank">Facebook</a> |
+                <a href="/cdn-cgi/l/email-protection#3c4e5d57555857520b0a0a7c5b515d5550125f5351">Email</a> |
                 <a href="https://www.linkedin.com/in/mehedi-hassan-rakib-72bb60195/" target="_blank">LinkedIn</a>
             </p>
         </div>
     </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
     <script>
-        // Preloader
         window.addEventListener('load', () => {
             const preloader = document.getElementById('preloader');
             preloader.style.opacity = '0';
             setTimeout(() => preloader.style.display = 'none', 500);
         });
-
-        // Dark Mode Toggle
         const darkModeToggle = document.getElementById('dark-mode-toggle');
         const body = document.body;
         darkModeToggle.addEventListener('click', () => {
@@ -251,12 +295,10 @@
             darkModeToggle.textContent = body.classList.contains('dark-mode') ? '☀️' : '🌙';
             localStorage.setItem('darkMode', body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
         });
-
         if (localStorage.getItem('darkMode') === 'enabled') {
             body.classList.add('dark-mode');
             darkModeToggle.textContent = '☀️';
         }
-
         const playerForm = document.getElementById('player-form');
         const teamForm = document.getElementById('team-form');
         const scheduleForm = document.getElementById('schedule-form');
@@ -265,7 +307,90 @@
         const scheduleSubmit = document.getElementById('schedule-submit');
         const errorDiv = document.getElementById('error');
         const loginError = document.getElementById('login-error');
-
+        const playerImageInput = document.getElementById('player-image');
+        const playerImagePreview = document.getElementById('player-image-preview');
+        const teamLogoInput = document.getElementById('team-logo');
+        const teamLogoPreview = document.getElementById('team-logo-preview');
+        // Resize and convert image to Base64
+        async function resizeAndConvertToBase64(file, isTeamLogo = false) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxWidth = isTeamLogo ? 600 : 300; // Higher resolution for logos
+                    const maxHeight = isTeamLogo ? 600 : 300;
+                    if (width > height) {
+                        if (width > maxWidth) {
+                            height *= maxWidth / width;
+                            width = maxWidth;
+                        }
+                    } else {
+                        if (height > maxHeight) {
+                            width *= maxHeight / height;
+                            height = maxHeight;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const format = isTeamLogo ? 'image/png' : 'image/jpeg'; // PNG for logos, JPEG for players
+                    const quality = isTeamLogo ? 1.0 : 0.7; // No compression for logos
+                    const base64 = canvas.toDataURL(format, quality);
+                    // Check size (Firestore limit: ~1MB, aim for <800KB for logos, <500KB for players)
+                    const sizeLimit = isTeamLogo ? 800000 : 500000;
+                    const sizeInBytes = (base64.length * 0.75); // Approx bytes
+                    if (sizeInBytes > sizeLimit) {
+                        reject(new Error(`Image is too large (${(sizeInBytes / 1000).toFixed(2)} KB). Please use a smaller image (max ${sizeLimit / 1000} KB).`));
+                    } else {
+                        resolve(base64);
+                    }
+                };
+                img.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        // Image preview for player
+        playerImageInput.addEventListener('change', async () => {
+            const file = playerImageInput.files[0];
+            if (file) {
+                try {
+                    const base64 = await resizeAndConvertToBase64(file, false);
+                    playerImagePreview.src = base64;
+                    playerImagePreview.style.display = 'block';
+                } catch (err) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = err.message;
+                    playerImagePreview.style.display = 'none';
+                }
+            } else {
+                playerImagePreview.style.display = 'none';
+            }
+        });
+        // Image preview for team logo
+        teamLogoInput.addEventListener('change', async () => {
+            const file = teamLogoInput.files[0];
+            if (file) {
+                try {
+                    const base64 = await resizeAndConvertToBase64(file, true);
+                    teamLogoPreview.src = base64;
+                    teamLogoPreview.style.display = 'block';
+                } catch (err) {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = err.message;
+                    teamLogoPreview.style.display = 'none';
+                }
+            } else {
+                teamLogoPreview.style.display = 'none';
+            }
+        });
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
                 document.getElementById('admin-content').style.display = 'block';
@@ -276,7 +401,6 @@
                 document.getElementById('login-form').style.display = 'block';
             }
         });
-
         document.getElementById('login-btn').addEventListener('click', () => {
             const email = document.getElementById('admin-email').value;
             const password = document.getElementById('admin-password').value;
@@ -289,13 +413,11 @@
                     loginError.textContent = 'Login failed: ' + err.message;
                 });
         });
-
         document.getElementById('logout-btn').addEventListener('click', () => {
             firebase.auth().signOut().then(() => {
                 window.location.reload();
             });
         });
-
         async function initializeAdminPanel() {
             try {
                 await Promise.all([
@@ -304,7 +426,6 @@
                     populatePlayerSelect(),
                     populateTeamSelects()
                 ]);
-
                 db.collection('schedule').onSnapshot(snapshot => {
                     const schedule = snapshot.docs.map(doc => ({ id: parseInt(doc.id), ...doc.data() }));
                     renderAdminSchedule(schedule.sort((a, b) => a.id - b.id));
@@ -317,16 +438,33 @@
                 errorDiv.textContent = 'Error loading admin panel: ' + err.message;
             }
         }
-
-        async function renderAdminPlayers() {
+        let currentPlayerPage = 1;
+        const playersPerPage = 12;
+        let playerSearchTerm = '';
+        async function renderAdminPlayers(page = currentPlayerPage, searchTerm = playerSearchTerm) {
             const container = document.getElementById('admin-players-list');
-            const players = await getPlayers();
+            const paginationContainer = document.getElementById('player-pagination');
+            let players = await getPlayers();
+            if (searchTerm) {
+                players = players.filter(player => 
+                    player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    player.regNum.toString().includes(searchTerm)
+                );
+            }
+            players.sort((a, b) => a.regNum.localeCompare(b.regNum));
+            const totalPlayers = players.length;
+            const totalPages = Math.ceil(totalPlayers / playersPerPage);
+            page = Math.max(1, Math.min(page, totalPages));
+            currentPlayerPage = page;
+            const start = (page - 1) * playersPerPage;
+            const end = start + playersPerPage;
+            const paginatedPlayers = players.slice(start, end);
             container.innerHTML = '';
-            players.forEach(player => {
+            paginatedPlayers.forEach(player => {
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card">
-                            <img src="${player.image}" class="card-img-top" alt="${player.name}">
+                            <img src="${player.image || 'https://via.placeholder.com/200'}" class="card-img-top" alt="${player.name}">
                             <div class="card-body">
                                 <h5 class="card-title">${player.name}</h5>
                                 <p class="player-position">${player.position}</p>
@@ -338,7 +476,35 @@
                     </div>
                 `;
             });
-
+            paginationContainer.innerHTML = '';
+            if (totalPages > 1) {
+                paginationContainer.innerHTML = `
+                    <li class="page-item ${page === 1 ? 'disabled' : ''}">
+                        <a class="page-link" href="#" aria-label="Previous" data-page="${page - 1}">Previous</a>
+                    </li>
+                `;
+                for (let i = 1; i <= totalPages; i++) {
+                    paginationContainer.innerHTML += `
+                        <li class="page-item ${i === page ? 'active' : ''}">
+                            <a class="page-link" href="#" data-page="${i}">${i}</a>
+                        </li>
+                    `;
+                }
+                paginationContainer.innerHTML += `
+                    <li class="page-item ${page === totalPages ? 'disabled' : ''}">
+                        <a class="page-link" href="#" aria-label="Next" data-page="${page + 1}">Next</a>
+                    </li>
+                `;
+            }
+            paginationContainer.querySelectorAll('.page-link').forEach(link => {
+                link.addEventListener('click', e => {
+                    e.preventDefault();
+                    const newPage = parseInt(e.target.dataset.page);
+                    if (!isNaN(newPage)) {
+                        renderAdminPlayers(newPage, searchTerm);
+                    }
+                });
+            });
             document.querySelectorAll('.edit-player').forEach(btn => {
                 btn.addEventListener('click', () => {
                     editPlayer(btn.dataset.regnum);
@@ -347,10 +513,22 @@
             document.querySelectorAll('.delete-player').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     await deletePlayer(btn.dataset.regnum);
+                    renderAdminPlayers(page, searchTerm);
                 });
             });
+            if (players.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No players found matching your search.</p>
+                    </div>
+                `;
+                paginationContainer.innerHTML = '';
+            }
         }
-
+        document.getElementById('player-search').addEventListener('input', e => {
+            playerSearchTerm = e.target.value.trim();
+            renderAdminPlayers(1, playerSearchTerm);
+        });
         async function renderAdminTeams() {
             const container = document.getElementById('admin-teams-list');
             const teams = await getTeams();
@@ -362,7 +540,7 @@
                 container.innerHTML += `
                     <div class="col-md-6 mb-4">
                         <div class="card">
-                            <img src="${team.logo}" class="card-img-top" alt="${team.name}">
+                            <img src="${team.logo || 'https://via.placeholder.com/60'}" class="card-img-top" alt="${team.name}">
                             <div class="card-body">
                                 <h5 class="card-title">${team.name}</h5>
                                 <p class="card-text">
@@ -378,20 +556,17 @@
                     </div>
                 `;
             });
-        
             document.querySelectorAll('.edit-team').forEach(btn => {
                 btn.addEventListener('click', () => {
                     editTeam(btn.dataset.id);
                 });
             });
-        
             document.querySelectorAll('.delete-team').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     await deleteTeam(parseInt(btn.dataset.id));
                 });
             });
         }
-
         function renderAdminSchedule(schedule) {
             const container = document.getElementById('admin-schedule-list');
             container.innerHTML = '';
@@ -422,7 +597,6 @@
                     </div>
                 `;
             });
-
             document.querySelectorAll('.edit-schedule').forEach(btn => {
                 btn.addEventListener('click', () => {
                     editSchedule(btn.dataset.id);
@@ -434,7 +608,6 @@
                 });
             });
         }
-
         async function populateTeamSelects() {
             const team1Select = document.getElementById('schedule-team1');
             const team2Select = document.getElementById('schedule-team2');
@@ -446,43 +619,97 @@
                 team2Select.innerHTML += `<option value="${team.name}">${team.name}</option>`;
             });
         }
-
         async function populatePlayerSelect(selectedRegNums = []) {
-            const playerSelect = document.getElementById('team-players');
-            if (!playerSelect) {
-                console.error('Player select element not found!');
+            const container = document.getElementById('team-players');
+            if (!container) {
+                console.error('Team players container not found!');
                 return;
             }
-
-            playerSelect.innerHTML = '';
+            const searchInput = container.querySelector('.search-input');
+            const dropdownMenu = container.querySelector('.dropdown-menu');
+            const selectedTags = container.querySelector('.selected-tags');
+            const hiddenInput = container.querySelector('#team-players-hidden');
             try {
                 const players = await getPlayers();
                 if (!players || players.length === 0) {
-                    playerSelect.innerHTML = '<option value="">No players available</option>';
+                    dropdownMenu.innerHTML = '<div class="dropdown-item disabled">No players available</div>';
                     return;
                 }
-
-                players.forEach(player => {
-                    const isSelected = selectedRegNums.includes(player.regNum) ? 'selected' : '';
-                    const option = document.createElement('option');
-                    option.value = player.regNum;
-                    option.textContent = `${player.name} (${player.position})`;
-                    option.selected = isSelected;
-                    playerSelect.appendChild(option);
+                let allPlayers = players.map(player => ({
+                    regNum: player.regNum,
+                    name: player.name,
+                    position: player.position
+                }));
+                let selectedPlayers = allPlayers.filter(p => selectedRegNums.includes(p.regNum));
+                function renderOptions(filter = '') {
+                    dropdownMenu.innerHTML = '';
+                    const filteredPlayers = allPlayers.filter(player =>
+                        player.name.toLowerCase().includes(filter.toLowerCase()) ||
+                        player.regNum.toString().includes(filter)
+                    );
+                    if (filteredPlayers.length === 0) {
+                        dropdownMenu.innerHTML = '<div class="dropdown-item disabled">No players found</div>';
+                        return;
+                    }
+                    filteredPlayers.forEach(player => {
+                        const isSelected = selectedPlayers.some(sp => sp.regNum === player.regNum);
+                        const item = document.createElement('div');
+                        item.className = `dropdown-item ${isSelected ? 'selected' : ''}`;
+                        item.dataset.regNum = player.regNum;
+                        item.textContent = `${player.name} (${player.position}, Reg: ${player.regNum})`;
+                        item.addEventListener('click', () => {
+                            if (isSelected) {
+                                selectedPlayers = selectedPlayers.filter(sp => sp.regNum !== player.regNum);
+                            } else {
+                                selectedPlayers.push(player);
+                            }
+                            renderTags();
+                            renderOptions(filter);
+                        });
+                        dropdownMenu.appendChild(item);
+                    });
+                }
+                function renderTags() {
+                    selectedTags.innerHTML = '';
+                    selectedPlayers.forEach(player => {
+                        const tag = document.createElement('span');
+                        tag.className = 'tag';
+                        tag.innerHTML = `${player.name} <span class="remove-tag" data-regNum="${player.regNum}">×</span>`;
+                        tag.querySelector('.remove-tag').addEventListener('click', () => {
+                            selectedPlayers = selectedPlayers.filter(sp => sp.regNum !== player.regNum);
+                            renderTags();
+                            renderOptions(searchInput.value);
+                        });
+                        selectedTags.appendChild(tag);
+                    });
+                    hiddenInput.value = selectedPlayers.map(p => p.regNum).join(',');
+                }
+                renderOptions();
+                renderTags();
+                searchInput.addEventListener('input', () => {
+                    renderOptions(searchInput.value);
+                    dropdownMenu.classList.add('show');
                 });
-
-                playerSelect.disabled = false;
-                playerSelect.focus();
+                searchInput.addEventListener('focus', () => {
+                    renderOptions(searchInput.value);
+                    dropdownMenu.classList.add('show');
+                });
+                document.addEventListener('click', e => {
+                    if (!container.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+                dropdownMenu.addEventListener('click', e => {
+                    e.stopPropagation();
+                });
             } catch (err) {
                 console.error('Error populating player select:', err);
-                playerSelect.innerHTML = '<option value="">Error loading players</option>';
+                dropdownMenu.innerHTML = '<div class="dropdown-item disabled">Error loading players</div>';
             }
         }
-
         async function populateManOfMatchSelect(team1Name, team2Name) {
             const manOfMatchSelect = document.getElementById('schedule-man-of-match');
             manOfMatchSelect.innerHTML = '<option value="">Select Man of the Match</option>';
-
             try {
                 const teams = await getTeams();
                 const team1 = teams.find(t => t.name === team1Name);
@@ -491,7 +718,6 @@
                 const team1Players = team1 ? players.filter(p => team1.playerRegNums.includes(p.regNum)) : [];
                 const team2Players = team2 ? players.filter(p => team2.playerRegNums.includes(p.regNum)) : [];
                 const allPlayers = [...team1Players, ...team2Players];
-
                 allPlayers.forEach(player => {
                     const option = document.createElement('option');
                     option.value = player.name;
@@ -503,12 +729,9 @@
                 manOfMatchSelect.innerHTML = '<option value="">Error loading players</option>';
             }
         }
-
-        // Dynamic goal scorers input
         let goalScorerCounter = 0;
         const goalScorersList = document.getElementById('goal-scorers-list');
         const addGoalScorerBtn = document.getElementById('add-goal-scorer');
-
         async function addGoalScorerEntry(playerName = '', team = '', minute = '') {
             const team1Name = document.getElementById('schedule-team1').value;
             const team2Name = document.getElementById('schedule-team2').value;
@@ -518,7 +741,6 @@
             const teamOptions = [team1Name, team2Name].filter(Boolean).map(name => 
                 `<option value="${name}" ${team === name ? 'selected' : ''}>${name}</option>`
             ).join('');
-
             const entryId = `goal-scorer-${goalScorerCounter++}`;
             const entryDiv = document.createElement('div');
             entryDiv.className = 'goal-scorer-entry';
@@ -533,26 +755,26 @@
                 <button type="button" class="btn btn-danger btn-sm remove-goal-scorer">Remove</button>
             `;
             goalScorersList.appendChild(entryDiv);
-
             entryDiv.querySelector('.remove-goal-scorer').addEventListener('click', () => {
                 entryDiv.remove();
             });
         }
-
         addGoalScorerBtn.addEventListener('click', () => {
             addGoalScorerEntry();
         });
-
         playerForm.addEventListener('submit', async e => {
             e.preventDefault();
             const regNum = document.getElementById('player-id').value || document.getElementById('player-regNum').value;
+            let imageBase64 = playerImagePreview.src && playerImagePreview.style.display !== 'none' ? playerImagePreview.src : null;
+            if (!imageBase64 && !regNum) {
+                imageBase64 = 'https://via.placeholder.com/200'; // Default image if none provided
+            }
             const player = {
                 name: document.getElementById('player-name').value,
                 regNum: document.getElementById('player-regNum').value,
                 position: document.getElementById('player-position').value,
-                image: document.getElementById('player-image').value || 'https://via.placeholder.com/200'
+                image: imageBase64
             };
-
             try {
                 if (regNum && regNum !== player.regNum) {
                     await removePlayer(regNum);
@@ -565,14 +787,15 @@
                 playerSubmit.textContent = 'Add Player';
                 document.getElementById('player-id').value = '';
                 playerForm.reset();
-                await renderAdminPlayers();
+                playerImagePreview.style.display = 'none';
+                playerImageInput.value = '';
+                await renderAdminPlayers(currentPlayerPage, playerSearchTerm);
                 await populatePlayerSelect();
             } catch (err) {
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error saving player: ' + err.message;
             }
         });
-
         function editPlayer(regNum) {
             getPlayers().then(players => {
                 const player = players.find(p => p.regNum === regNum);
@@ -580,39 +803,44 @@
                     document.getElementById('player-name').value = player.name;
                     document.getElementById('player-regNum').value = player.regNum;
                     document.getElementById('player-position').value = player.position;
-                    document.getElementById('player-image').value = player.image;
                     document.getElementById('player-id').value = player.regNum;
+                    if (player.image && player.image.startsWith('data:image')) {
+                        playerImagePreview.src = player.image;
+                        playerImagePreview.style.display = 'block';
+                    } else {
+                        playerImagePreview.style.display = 'none';
+                    }
                     playerSubmit.textContent = 'Update Player';
                 }
             });
         }
-
         async function deletePlayer(regNum) {
             try {
                 await removePlayer(regNum);
-                await renderAdminPlayers();
+                await renderAdminPlayers(currentPlayerPage, playerSearchTerm);
                 await populatePlayerSelect();
             } catch (err) {
                 errorDiv.style.display = 'block';
                 errorDiv.textContent = 'Error deleting player: ' + err.message;
             }
         }
-
         teamForm.addEventListener('submit', async e => {
             e.preventDefault();
             const id = document.getElementById('team-id').value ? parseInt(document.getElementById('team-id').value) : null;
-            const playerSelect = document.getElementById('team-players');
-            const selectedPlayerRegNums = Array.from(playerSelect.selectedOptions).map(opt => opt.value);
-        
+            const hiddenInput = document.getElementById('team-players-hidden');
+            const selectedPlayerRegNums = hiddenInput.value ? hiddenInput.value.split(',').filter(Boolean) : [];
+            let logoBase64 = teamLogoPreview.src && teamLogoPreview.style.display !== 'none' ? teamLogoPreview.src : null;
+            if (!logoBase64 && !id) {
+                logoBase64 = 'https://via.placeholder.com/60'; // Default logo if none provided
+            }
             const team = {
                 name: document.getElementById('team-name').value,
                 manager: document.getElementById('team-manager').value,
                 owner: document.getElementById('team-owner').value,
-                logo: document.getElementById('team-logo').value || 'https://via.placeholder.com/60',
-                playerRegNums: selectedPlayerRegNums.length > 0 ? selectedPlayerRegNums : [], // Default to empty array if no players selected
+                logo: logoBase64,
+                playerRegNums: selectedPlayerRegNums,
                 group: document.getElementById('team-group').value
             };
-        
             try {
                 if (id) {
                     await updateTeam(id, team);
@@ -622,6 +850,11 @@
                     await addTeam(team);
                 }
                 teamForm.reset();
+                document.getElementById('team-players-hidden').value = '';
+                document.getElementById('team-players').querySelector('.selected-tags').innerHTML = '';
+                document.getElementById('team-players').querySelector('.search-input').value = '';
+                teamLogoPreview.style.display = 'none';
+                teamLogoInput.value = '';
                 await renderAdminTeams();
                 await populateTeamSelects();
                 await populatePlayerSelect();
@@ -630,7 +863,6 @@
                 errorDiv.textContent = 'Error saving team: ' + err.message;
             }
         });
-
         function editTeam(id) {
             getTeams().then(teams => {
                 const team = teams.find(t => t.id === parseInt(id));
@@ -638,21 +870,19 @@
                     document.getElementById('team-name').value = team.name;
                     document.getElementById('team-manager').value = team.manager;
                     document.getElementById('team-owner').value = team.owner;
-                    document.getElementById('team-logo').value = team.logo;
                     document.getElementById('team-id').value = team.id;
                     document.getElementById('team-group').value = team.group || 'A';
-                    
-                    populatePlayerSelect(team.playerRegNums || []).then(() => {
-                        const playerSelect = document.getElementById('team-players');
-                        playerSelect.disabled = false;
-                        playerSelect.focus();
-                    });
-                    
+                    if (team.logo && team.logo.startsWith('data:image')) {
+                        teamLogoPreview.src = team.logo;
+                        teamLogoPreview.style.display = 'block';
+                    } else {
+                        teamLogoPreview.style.display = 'none';
+                    }
+                    populatePlayerSelect(team.playerRegNums || []);
                     teamSubmit.textContent = 'Update Team';
                 }
             });
         }
-
         async function deleteTeam(id) {
             try {
                 await removeTeam(id);
@@ -663,7 +893,6 @@
                 errorDiv.textContent = 'Error deleting team: ' + err.message;
             }
         }
-
         scheduleForm.addEventListener('submit', async e => {
             e.preventDefault();
             const id = document.getElementById('schedule-id').value ? parseInt(document.getElementById('schedule-id').value) : null;
@@ -677,7 +906,6 @@
                 location: document.getElementById('schedule-location').value,
                 status: document.getElementById('schedule-status').value
             };
-
             if (match.status === 'Completed') {
                 const team1Score = parseInt(document.getElementById('schedule-team1-score').value) || 0;
                 const team2Score = parseInt(document.getElementById('schedule-team2-score').value) || 0;
@@ -685,8 +913,6 @@
                     [match.teams[0]]: team1Score,
                     [match.teams[1]]: team2Score
                 };
-
-                // Collect goal scorers
                 const goalScorerEntries = goalScorersList.querySelectorAll('.goal-scorer-entry');
                 match.goalScorers = Array.from(goalScorerEntries).map(entry => {
                     const player = entry.querySelector('input[type="text"]').value;
@@ -694,8 +920,6 @@
                     const minute = parseInt(entry.querySelector('input[type="number"]').value) || 0;
                     return { player, team, minute };
                 }).filter(goal => goal.player && goal.team && goal.minute > 0);
-
-                // Collect man of the match
                 const manOfMatch = document.getElementById('schedule-man-of-match').value;
                 if (manOfMatch) {
                     match.manOfTheMatch = manOfMatch;
@@ -704,7 +928,6 @@
                 match.goalScorers = [];
                 match.manOfTheMatch = '';
             }
-
             try {
                 if (match.teams[0] === match.teams[1]) {
                     throw new Error("Teams cannot be the same!");
@@ -724,7 +947,6 @@
                 errorDiv.textContent = 'Error saving match: ' + err.message;
             }
         });
-
         function editSchedule(id) {
             getSchedule().then(schedule => {
                 const match = schedule.find(s => s.id === parseInt(id));
@@ -739,8 +961,6 @@
                     document.getElementById('schedule-team2-score').value = match.score ? match.score[match.teams[1]] : '';
                     document.getElementById('schedule-id').value = match.id;
                     scheduleSubmit.textContent = 'Update Match';
-
-                    // Populate goal scorers and man of the match
                     goalScorersList.innerHTML = '';
                     if (match.status === 'Completed') {
                         if (match.goalScorers && match.goalScorers.length > 0) {
@@ -754,12 +974,10 @@
                     } else {
                         document.getElementById('schedule-man-of-match').innerHTML = '<option value="">Select Man of the Match</option>';
                     }
-
                     toggleScoreFields(match.status === 'Completed');
                 }
             });
         }
-
         function toggleScoreFields(isCompleted) {
             const scoreFields = document.getElementById('score-fields');
             if (isCompleted) {
@@ -777,12 +995,9 @@
                 document.getElementById('schedule-man-of-match').innerHTML = '<option value="">Select Man of the Match</option>';
             }
         }
-
         document.getElementById('schedule-status').addEventListener('change', (e) => {
             toggleScoreFields(e.target.value === 'Completed');
         });
-
-        // Update man of the match dropdown when teams change
         document.getElementById('schedule-team1').addEventListener('change', () => {
             const team1Name = document.getElementById('schedule-team1').value;
             const team2Name = document.getElementById('schedule-team2').value;
@@ -790,7 +1005,6 @@
                 populateManOfMatchSelect(team1Name, team2Name);
             }
         });
-
         document.getElementById('schedule-team2').addEventListener('change', () => {
             const team1Name = document.getElementById('schedule-team1').value;
             const team2Name = document.getElementById('schedule-team2').value;
@@ -798,7 +1012,6 @@
                 populateManOfMatchSelect(team1Name, team2Name);
             }
         });
-
         async function deleteSchedule(id) {
             try {
                 await removeSchedule(id);
