@@ -13,6 +13,85 @@
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
+
+    <!-- Custom CSS for Facebook Widget -->
+    <style>
+        .facebook-section {
+            margin: 40px 0;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: #ffffff;
+            text-align: center;
+            border-radius: 0; /* Remove border-radius since it's full-width */
+            box-shadow: none; /* Remove shadow for a cleaner full-width look */
+        }
+        .facebook-section .container {
+            max-width: 1140px; /* Match Bootstrap's container width for consistency */
+        }
+        .facebook-section h2 {
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .facebook-section p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #e5e7eb;
+        }
+        .fb-page-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 0; /* Remove padding to allow widget to stretch */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%; /* Stretch to full width of parent container */
+            max-width: none; /* Remove max-width constraint */
+            margin: 0 auto;
+        }
+        .fb-page {
+            width: 100% !important; /* Ensure widget stretches to container width */
+        }
+        .fb-page-fallback {
+            display: none;
+            margin-top: 20px;
+            font-size: 1.1rem;
+        }
+        .fb-page-fallback a {
+            color: #34d399;
+            text-decoration: none;
+        }
+        .fb-page-fallback a:hover {
+            text-decoration: underline;
+        }
+        .cta-button {
+            margin-top: 20px;
+            display: inline-block;
+        }
+        /* Dark mode adjustments */
+        body.dark-mode .facebook-section {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+        }
+        body.dark-mode .fb-page-container {
+            background: #2d3748;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.05);
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .fb-page-container {
+                width: 100%;
+            }
+            .fb-page {
+                width: 100% !important;
+            }
+            .facebook-section {
+                padding: 20px 0;
+            }
+            .facebook-section p {
+                font-size: 1rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg fixed-top">
@@ -39,7 +118,6 @@
     <!-- Hero Section -->
     <header class="hero-section text-center text-white d-flex align-items-center">
         <div class="container animate__animated animate__fadeIn">
-            <!-- <h2>... Presents</h2> -->
             <h1 class="display-3 fw-bold">Intra CSE Football Tournament 2025</h1>
             <p class="lead">SUST CSE - Where Legends Are Made</p>
             <a href="teams.html" class="btn btn-primary btn-lg m-2 animate__animated animate__bounceIn">Explore Teams</a>
@@ -79,12 +157,44 @@
         </div>
     </section>
 
+    <!-- Facebook Section -->
+    <section class="facebook-section">
+        <div class="container">
+            <h2 class="animate__animated animate__fadeInUp">Follow Us on Facebook</h2>
+            <p class="animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                Stay updated with match highlights, live schedules, and exclusive tournament content! Join our community and never miss a moment of the action.
+            </p>
+            <div class="fb-page-container animate__animated animate__zoomIn" style="animation-delay: 0.4s;">
+                <div class="fb-page" 
+                     data-href="https://www.facebook.com/profile.php?id=61575217507331" 
+                     data-tabs="timeline" 
+                     data-width="1140" 
+                     data-height="400" 
+                     data-small-header="true" 
+                     data-adapt-container-width="true" 
+                     data-hide-cover="false" 
+                     data-show-facepile="true">
+                    <blockquote cite="https://www.facebook.com/profile.php?id=61575217507331" class="fb-xfbml-parse-ignore">
+                        <a href="https://www.facebook.com/profile.php?id=61575217507331">CSE SUST Football</a>
+                    </blockquote>
+                </div>
+            </div>
+            <div class="fb-page-fallback">
+                <p>Unable to load Facebook feed. Visit our page directly:</p>
+                <a href="https://www.facebook.com/profile.php?id=61575217507331" target="_blank">SUST CSE Football Tournament on Facebook</a>
+            </div>
+            <a href="https://www.facebook.com/profile.php?id=61575217507331" target="_blank" class="btn btn-success cta-button animate__animated animate__bounceIn" style="animation-delay: 0.6s;">
+                Join the Tournament Community
+            </a>
+        </div>
+    </section>
+
     <footer class="mt-5">
         <div class="container">
-            <p>&copy; Mehedi Hassan Rakib</p>
+            <p>© Mehedi Hassan Rakib</p>
             <p>
                 <a href="https://www.facebook.com/rakibmh100/" target="_blank">Facebook</a> | 
-                <a href="mailto:rakibmh100@gmail.com">
+                <a href="/cdn-cgi/l/email-protection#a092818b89828d88d1d0d0a0878d81898cce838f8d">
                     <i class="fas fa-envelope"></i> Email
                 </a> |
                 <a href="https://www.linkedin.com/in/mehedi-hassan-rakib-72bb60195/" target="_blank">LinkedIn</a>
@@ -92,20 +202,24 @@
         </div>
     </footer>
 
+    <!-- Facebook SDK -->
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v20.0"></script>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
     <script src="js/data.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/script.js"></script>
     <script>
         // Countdown Timer
-        const startDate = new Date('June 22, 2025 14:00:00').getTime(); // Tournament start
-        const endDate = new Date('June 27, 2025 23:59:59').getTime();  // Tournament end
+        const startDate = new Date('June 22, 2025 14:00:00').getTime();
+        const endDate = new Date('June 27, 2025 23:59:59').getTime();
         const countdown = setInterval(() => {
             const now = new Date().getTime();
             const distanceToStart = startDate - now;
             const distanceToEnd = endDate - now;
 
             if (distanceToStart > 0) {
-                // Before tournament starts
                 const days = Math.floor(distanceToStart / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distanceToStart % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distanceToStart % (1000 * 60 * 60)) / (1000 * 60));
@@ -116,19 +230,17 @@
                 document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
                 document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
             } else if (distanceToStart <= 0 && distanceToEnd > 0) {
-                // During tournament
                 clearInterval(countdown);
                 document.getElementById('countdown').innerHTML = '<h3>Tournament In Progress!</h3>';
             } else {
-                // After tournament ends
                 clearInterval(countdown);
                 document.getElementById('countdown').innerHTML = '<h3>Tournament Ended!</h3>';
             }
         }, 1000);
 
-        // Featured Teams
+        // Featured Teams (unchanged)
         document.addEventListener('DOMContentLoaded', () => {
-            const featuredTeams = teams.slice(0, 3); // Show first 3 teams
+            const featuredTeams = teams.slice(0, 3);
             const featuredTeamsContainer = document.getElementById('featured-teams');
             featuredTeams.forEach((team, index) => {
                 const teamPlayers = players.filter(p => team.playerIds.includes(p.id));
@@ -150,6 +262,18 @@
                 `;
             });
         });
+
+        // Fallback for Facebook widget if it fails to load
+        window.addEventListener('load', () => {
+            const fbWidget = document.querySelector('.fb-page');
+            const fbFallback = document.querySelector('.fb-page-fallback');
+            setTimeout(() => {
+                if (!fbWidget || !fbWidget.innerHTML.trim()) {
+                    fbFallback.style.display = 'block';
+                }
+            }, 5000);
+        });
     </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'932699edd8767bca',t:'MTc0NTAwNDg4NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
