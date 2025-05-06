@@ -151,6 +151,18 @@
                     <input type="file" id="player-image" class="form-control" accept="image/*">
                     <img id="player-image-preview" class="image-preview" alt="Player Image Preview">
                 </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="player-icon" class="form-check-input">
+                        <label for="player-icon" class="form-check-label">Icon Player</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" id="player-alumni" class="form-check-input">
+                        <label for="player-alumni" class="form-check-label">Alumni Player</label>
+                    </div>
+                </div>
                 <button type="submit" id="player-submit" class="btn btn-primary">Add Player</button>
             </form>
         </div>
@@ -311,6 +323,8 @@
         const playerImagePreview = document.getElementById('player-image-preview');
         const teamLogoInput = document.getElementById('team-logo');
         const teamLogoPreview = document.getElementById('team-logo-preview');
+        const playerIcon = document.getElementById('player-icon');
+        const playerAlumni = document.getElementById('player-alumni');
         // Resize and convert image to Base64
         async function resizeAndConvertToBase64(file, isTeamLogo = false) {
             return new Promise((resolve, reject) => {
@@ -468,7 +482,11 @@
                             <div class="card-body">
                                 <h5 class="card-title">${player.name}</h5>
                                 <p class="player-position">${player.position}</p>
-                                <p class="card-text">Reg: ${player.regNum}</p>
+                                <p class="card-text">
+                                    Reg: ${player.regNum}<br>
+                                    Icon: ${player.isIcon ? 'Yes' : 'No'}<br>
+                                    Alumni: ${player.isAlumni ? 'Yes' : 'No'}
+                                </p>
                                 <button class="btn btn-warning btn-sm edit-player" data-regnum="${player.regNum}" aria-label="Edit player ${player.name}">Edit</button>
                                 <button class="btn btn-danger btn-sm delete-player" data-regnum="${player.regNum}" aria-label="Delete player ${player.name}">Delete</button>
                             </div>
@@ -773,9 +791,35 @@
                 name: document.getElementById('player-name').value,
                 regNum: document.getElementById('player-regNum').value,
                 position: document.getElementById('player-position').value,
-                image: imageBase64
+                image: imageBase64,
+                isIcon: playerIcon.checked,
+                isAlumni: playerAlumni.checked
             };
             try {
+                // Validate icon player (max 1 per team)
+                if (player.isIcon) {
+                    const teams = await getTeams();
+                    const playerTeam = teams.find(t => t.playerRegNums.includes(player.regNum));
+                    if (playerTeam) {
+                        const teamPlayers = await getPlayers();
+                        const otherIconPlayers = teamPlayers.filter(p => p.regNum !== player.regNum && p.isIcon && playerTeam.playerRegNums.includes(p.regNum));
+                        if (otherIconPlayers.length > 0) {
+                            throw new Error('This team already has an icon player.');
+                        }
+                    }
+                }
+                // Validate alumni (max 2 per team)
+                if (player.isAlumni) {
+                    const teams = await getTeams();
+                    const playerTeam = teams.find(t => t.playerRegNums.includes(player.regNum));
+                    if (playerTeam) {
+                        const teamPlayers = await getPlayers();
+                        const alumniPlayers = teamPlayers.filter(p => p.regNum !== player.regNum && p.isAlumni && playerTeam.playerRegNums.includes(p.regNum));
+                        if (alumniPlayers.length >= 2) {
+                            throw new Error('This team already has the maximum of 2 alumni players.');
+                        }
+                    }
+                }
                 if (regNum && regNum !== player.regNum) {
                     await removePlayer(regNum);
                     await addPlayer(player);
@@ -810,6 +854,8 @@
                     } else {
                         playerImagePreview.style.display = 'none';
                     }
+                    playerIcon.checked = player.isIcon || false;
+                    playerAlumni.checked = player.isAlumni || false;
                     playerSubmit.textContent = 'Update Player';
                 }
             });
@@ -842,6 +888,18 @@
                 group: document.getElementById('team-group').value
             };
             try {
+                // Validate icon players (max 1 per team)
+                const players = await getPlayers();
+                const teamPlayers = players.filter(p => selectedPlayerRegNums.includes(p.regNum));
+                const iconPlayers = teamPlayers.filter(p => p.isIcon);
+                if (iconPlayers.length > 1) {
+                    throw new Error('A team can have only one icon player.');
+                }
+                // Validate alumni (max 2 per team)
+                const alumniPlayers = teamPlayers.filter(p => p.isAlumni);
+                if (alumniPlayers.length > 2) {
+                    throw new Error('A team can have a maximum of 2 alumni players.');
+                }
                 if (id) {
                     await updateTeam(id, team);
                     teamSubmit.textContent = 'Add Team';
@@ -1021,5 +1079,5 @@
             }
         }
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93bc2a6b58156779',t:'MTc0NjU3MzE4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>

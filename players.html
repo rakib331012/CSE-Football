@@ -4,39 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Players - University Football Tournament</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-    <!-- Data Functions -->
     <script src="js/data.js"></script>
-    <style>
-        .category-btn {
-            margin: 0 5px;
-            transition: background-color 0.3s;
-        }
-        .category-btn.active {
-            background-color: #007bff;
-            color: white;
-        }
-        .search-bar {
-            max-width: 500px;
-            margin: 0 auto 20px auto;
-        }
-    </style>
 </head>
 <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand animate__animated animate__pulse animate__infinite" href="index.html">SUST CSE Football Tournament</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -54,117 +34,113 @@
         </div>
     </nav>
 
-    <!-- Players Section -->
     <div class="container my-5">
-        <h2 class="text-center">Tournament Players</h2>
-        <!-- Search Bar -->
-        <div class="search-bar">
-            <input type="text" id="player-search" class="form-control" placeholder="Search players by name...">
+        <h2 class="text-center">Players</h2>
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <input type="text" id="search-box" class="form-control" placeholder="Search by name or registration number">
+            </div>
         </div>
-        <!-- Category Buttons -->
         <div class="text-center mb-4">
             <button class="btn btn-outline-primary category-btn active" data-category="all">All Players</button>
             <button class="btn btn-outline-primary category-btn" data-category="Forward">Forwards</button>
             <button class="btn btn-outline-primary category-btn" data-category="Midfielder">Midfielders</button>
             <button class="btn btn-outline-primary category-btn" data-category="Defender">Defenders</button>
             <button class="btn btn-outline-primary category-btn" data-category="Goalkeeper">Goalkeepers</button>
+            <button class="btn btn-outline-primary category-btn" data-category="Icon">Icon Players</button>
+            <button class="btn btn-outline-primary category-btn" data-category="Alumni">Alumni</button>
         </div>
-        <!-- Players List -->
         <div id="players-list" class="row"></div>
     </div>
 
-    <!-- Bootstrap JS and Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-    <script>
-        // DOM Elements
-        const playersList = document.getElementById('players-list');
-        const categoryButtons = document.querySelectorAll('.category-btn');
-        const searchInput = document.getElementById('player-search');
-        let currentCategory = 'all';
-        let searchTerm = '';
-        let allPlayers = [];
-
-        // Render players
-        function renderPlayers(players) {
-            playersList.innerHTML = '';
-            let filteredPlayers = players;
-        
-            if (currentCategory !== 'all') {
-                filteredPlayers = filteredPlayers.filter(player => player.position === currentCategory);
-            }
-        
-            if (searchTerm) {
-                filteredPlayers = filteredPlayers.filter(player => 
-                    player.name.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            }
-        
-            filteredPlayers.forEach(player => {
-                const teamDisplay = player.team || 'No Team';
-                const imageSrc = player.image && player.image.startsWith('data:image') ? player.image : 'https://via.placeholder.com/200';
-                playersList.innerHTML += `
-                    <div class="col-md-4 mb-4">
-                        <div class="card animate__animated animate__fadeIn">
-                            <img src="${imageSrc}" class="card-img-top" alt="${player.name}" onerror="this.src='https://via.placeholder.com/200'">
-                            <div class="card-body">
-                                <h5 class="card-title">${player.name}</h5>
-                                <p class="player-position">${player.position}</p>
-                                <p class="card-text">Reg: ${player.regNum}</p>
-                                <p class="card-text">Team: ${teamDisplay}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        
-            if (filteredPlayers.length === 0) {
-                playersList.innerHTML = `
-                    <div class="col-12 text-center">
-                        <p class="text-muted">No players found matching your search.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // Handle category button clicks
-        categoryButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Update active button
-                categoryButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Update current category and re-render
-                currentCategory = button.dataset.category;
-                renderPlayers(allPlayers);
-            });
-        });
-
-        // Handle search input
-        searchInput.addEventListener('input', (e) => {
-            searchTerm = e.target.value.trim();
-            renderPlayers(allPlayers);
-        });
-
-        // Real-time listener for players
-        db.collection('players').onSnapshot(snapshot => {
-            allPlayers = snapshot.docs.map(doc => ({ regNum: doc.id, ...doc.data() }));
-            renderPlayers(allPlayers.sort((a, b) => a.regNum.localeCompare(b.regNum)));
-        }, err => {
-            console.error('Error listening to players:', err);
-        });
-    </script>
     <footer class="mt-5">
         <div class="container">
             <p>&copy; Mehedi Hassan Rakib</p>
             <p>
                 <a href="https://www.facebook.com/rakibmh100/" target="_blank">Facebook</a> | 
-                <a href="mailto:rakibmh100@gmail.com">
+                <a href="/cdn-cgi/l/email-protection#3f4d5e54565956531213137f58525e5653115c5052">
                     <i class="fas fa-envelope"></i> Email
                 </a> |
                 <a href="https://www.linkedin.com/in/mehedi-hassan-rakib-72bb60195/" target="_blank">LinkedIn</a>
             </p>
         </div>
     </footer>
-</body>
-</html>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <script src="js/script.js"></script>
+    <script>
+        // Real-time listener for players
+        let players = [];
+        let currentCategory = 'all';
+        let searchTerm = '';
+
+        db.collection('players').onSnapshot(snapshot => {
+            players = snapshot.docs.map(doc => ({ regNum: doc.id, ...doc.data() }));
+            renderPlayers('players-list');
+        }, err => {
+            console.error('Error listening to players:', err);
+        });
+
+        // Category filter
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                renderPlayers('players-list');
+            });
+        });
+
+        // Search functionality
+        document.getElementById('search-box').addEventListener('input', e => {
+            searchTerm = e.target.value;
+            renderPlayers('players-list');
+        });
+
+        // Render players
+        function renderPlayers(containerId) {
+            const playersList = document.getElementById(containerId);
+            if (!playersList) return;
+            playersList.innerHTML = '';
+            let filteredPlayers = players;
+
+            if (currentCategory !== 'all') {
+                if (currentCategory === 'Icon') {
+                    filteredPlayers = filteredPlayers.filter(player => player.isIcon === true);
+                } else if (currentCategory === 'Alumni') {
+                    filteredPlayers = filteredPlayers.filter(player => player.isAlumni === true);
+                } else {
+                    filteredPlayers = filteredPlayers.filter(player => player.position === currentCategory);
+                }
+            }
+
+            if (searchTerm) {
+                filteredPlayers = filteredPlayers.filter(player => 
+                    player.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    player.regNum.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+
+            filteredPlayers.forEach(player => {
+                playersList.innerHTML += `
+                    <div class="col-md-4 mb-4">
+                        <div class="card animate__animated animate__fadeIn ${player.isIcon ? 'icon-player' : ''}">
+                            <img src="${player.image}" class="card-img-top" alt="${player.name}">
+                            <div class="card-body">
+                                <h5 class="card-title">${player.name}</h5>
+                                <p class="player-position">${player.position}</p>
+                                <p class="card-text">Reg: ${player.regNum}</p>
+                                ${player.isIcon ? '<span class="badge bg-warning text-dark">Icon Player</span>' : ''}
+                                ${player.isAlumni ? '<span class="badge bg-info text-dark">Alumni</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (filteredPlayers.length === 0) {
+                playersList.innerHTML = '<div class="col-12 text-center"><p class="no-results">No players found.</p></div>';
+            }
+        }
+    </script>

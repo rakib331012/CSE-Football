@@ -1,7 +1,7 @@
-/* Import modern fonts (unchanged) */
+/* Import modern fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-/* Global styles (unchanged) */
+/* Global styles */
 body {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -17,7 +17,7 @@ body {
     padding: 20px;
 }
 
-/* Preloader (unchanged) */
+/* Preloader */
 #preloader {
     position: fixed;
     top: 0;
@@ -46,7 +46,7 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Navbar (unchanged) */
+/* Navbar */
 .navbar {
     background: linear-gradient(90deg, #1e40af 0%, #3b82f6 100%) !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -65,7 +65,7 @@ body {
     color: #10b981 !important;
 }
 
-/* Cards (modified to fix logo cropping) */
+/* Cards */
 .card {
     border-radius: 12px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -81,12 +81,12 @@ body {
 
 .card-img-top {
     width: 100%;
-    height: auto; /* Allow natural height to avoid cropping */
-    min-height: 100px; /* Minimum height to ensure visibility */
-    max-height: 200px; /* Cap height to prevent overly large logos */
-    object-fit: contain; /* Show full image without cropping */
-    padding: 10px; /* Add padding to avoid touching edges */
-    background-color: transparent; /* Remove any background that might clip */
+    height: auto;
+    min-height: 100px;
+    max-height: 200px;
+    object-fit: contain;
+    padding: 10px;
+    background-color: transparent;
     transition: transform 0.3s ease;
 }
 
@@ -107,7 +107,28 @@ body {
     color: #6b7280;
 }
 
-/* Specific styling for team list cards in admin and teams pages */
+/* Icon Player Styling */
+.icon-player {
+    border: 2px solid #ffd700;
+    background: #fffacd;
+    box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3);
+}
+
+.icon-player .card-title {
+    color: #d4a017;
+}
+
+.icon-player .badge {
+    font-size: 0.9rem;
+}
+
+.icon-player-modal {
+    background: #fffacd;
+    border-left: 3px solid #ffd700;
+    font-weight: 600;
+}
+
+/* Specific styling for team list cards */
 #admin-teams-list .card-img-top,
 #teams-list .card-img-top {
     height: auto;
@@ -119,15 +140,15 @@ body {
 /* Modal logo in teams.html */
 #teamModal .modal-body img {
     max-width: 100%;
-    max-height: 200px; /* Increased to accommodate full logo */
+    max-height: 200px;
     width: auto;
     height: auto;
-    object-fit: contain; /* Show full logo without cropping */
+    object-fit: contain;
     display: block;
-    margin: 0 auto; /* Center the logo */
+    margin: 0 auto;
 }
 
-/* Rest of the styles remain unchanged */
+/* Hero Section */
 .hero-section {
     background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
     min-height: 100vh;

@@ -7,12 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
         players.forEach(player => {
             playersList.innerHTML += `
                 <div class="col-md-4 mb-4">
-                    <div class="card">
+                    <div class="card ${player.isIcon ? 'icon-player' : ''}">
                         <img src="${player.image}" class="card-img-top" alt="${player.name}">
                         <div class="card-body">
                             <h5 class="card-title">${player.name}</h5>
                             <p class="player-position">${player.position}</p>
                             <p class="card-text">Reg: ${player.regNum}</p>
+                            ${player.isIcon ? '<span class="badge bg-warning text-dark">Icon Player</span>' : ''}
                         </div>
                     </div>
                 </div>
@@ -71,8 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playerList.innerHTML = '';
         teamPlayers.forEach(player => {
             playerList.innerHTML += `
-                <li class="list-group-item">
+                <li class="list-group-item ${player.isIcon ? 'icon-player-modal' : ''}">
                     ${player.name} <span class="player-position">${player.position}</span>
+                    ${player.isIcon ? '<span class="badge bg-warning text-dark ms-2">Icon</span>' : ''}
                 </li>
             `;
         });
@@ -126,12 +128,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .forEach(player => {
                     playersList.innerHTML += `
                         <div class="col-md-4 mb-4">
-                            <div class="card">
+                            <div class="card ${player.isIcon ? 'icon-player' : ''}">
                                 <img src="${player.image}" class="card-img-top" alt="${player.name}">
                                 <div class="card-body">
                                     <h5 class="card-title">${player.name}</h5>
                                     <p class="player-position">${player.position}</p>
                                     <p class="card-text">Reg: ${player.regNum}</p>
+                                    ${player.isIcon ? '<span class="badge bg-warning text-dark">Icon Player</span>' : ''}
                                 </div>
                             </div>
                         </div>
